@@ -1,18 +1,87 @@
 # BE 434/535 Biosystems Analytics
 
-The field of "bioinformatics" is biology plus data science. For the latter,
-most people find Unix-like operating systems to be the most efficient way to
-conduct research. Almost all our tools run in Unix, most of them from the
-command line, so the bioinformatician must know how to move data around, run
-programs, and chain the output of one program into another to create analysis
-pipelines.
+The field of "bioinformatics" is biology plus data science. This course assumes you have some understanding of the Unix command line and some programming experience. 
 
-# Code
+# Ocelote (UA HPC)
+
+Given that our class will have students on a variety of operating systems (Windows, OSX, Linux), we will use the HPC (high performance computing) cluster at the University of Arizona for our work. 
+
+To gain access to Ocelote, students must:
+
+1) Have a terminal application ("Terminal" on OSX, Gitbash on Windows)
+2) Sign up for UA's NetID+ (https://netid-plus.arizona.edu/)
+3) Be sponsored (https://portal.hpc.arizona.edu/portal/)
+
+Once you have these, open a terminal and type:
+
+```
+ssh <NetID>@hpc.arizona.edu
+```
+
+You will be prompted for additional authentication for NetID+. If all goes well, you should see something like this:
+
+```
+Last login: Sat Jan  5 07:53:30 2019 from ip72-200-123-88.tc.ph.cox.net
+This is a bastion host used to access the rest of the environment.
+
+Shortcut commands to access each resource
+-----------------------------------------
+Ocelote:                El Gato:
+$ ocelote               $ elgato
+```
+
+Or you may see this (e.g., if you have enabled the menu with the `menuon` command):
+
+```
+Last login: Sat Jan  5 07:53:30 2019 from ip72-200-123-88.tc.ph.cox.net
+This is a bastion host used to access the rest of the environment.
+
+Shortcut commands to access each resource
+-----------------------------------------
+Ocelote:                El Gato:
+$ ocelote               $ elgato
+```
+
+# SSH Keys
+
+If you would like to avoid the 2-factor authentication, then copy your SSH private key to the target system like so: 
+
+1) On your local machine and `cd ~/.ssh`. If you do not have one, then run `ssh-keygen`.
+2) Copy the contents of the `id_rsa.pub` file (the "public" part of your key). If you do not have one, then run `ssh-keygen`.
+3) Login to the target system and `cd ~/.ssh`. If you do not have one, then run `ssh-keygen`.
+4) Edit the `authorized_keys` file (e.g., with `nano`) and paste in the public key.
+5) Set the permissions with `chmod 600 authorized_keys`
+6) Test your login from your local machine.
+
+# Git(hub)
+
+You will use the `git` source code management program to gain access to the course materials as well as turn in your assignments. Once you are on the Ocelote (or a similar Unix platform), it's quite likely that Git is already installed. Check the version like so:
+
+````
+[hpc:login3@~]$ git --version
+git version 2.2.2
+````
 
 All the code examples presented here can be found at:
 
 ```
 https://github.com/hurwitzlab/biosys-analytics
+```
+
+Visit the above URL in a browser to look around. You will need to create a Github account (it's free), and then "fork" our repository into your own account by clicking the "Fork" button in the upper-right corner. Then you can "clone" the repo into your own account. I suggest you add your public SSH key (see "SSH Keys" above) into your Github "Settings/SSH and GPG Keys" so that you can more easily push and pull into your repositories. You'll need to add a key from each machine you intend to work from, i.e., both your laptop and Ocelote.
+
+Now you can copy the course repo to your machine(s) like so:
+
+```
+[hpc:login3@~]$ git clone git@github.com:kyclark/biosys-analytics.git
+Cloning into 'biosys-analytics'...
+remote: Enumerating objects: 16, done.
+remote: Counting objects: 100% (16/16), done.
+remote: Compressing objects: 100% (14/14), done.
+remote: Total 16 (delta 1), reused 12 (delta 0), pack-reused 0
+Receiving objects: 100% (16/16), 104.71 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (1/1), done.
+Checking connectivity... done.
 ```
 
 # About The Author
