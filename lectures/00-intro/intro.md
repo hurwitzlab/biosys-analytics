@@ -84,6 +84,18 @@ Resolving deltas: 100% (1/1), done.
 Checking connectivity... done.
 ```
 
+To stay together, you will add the class Github repo as an "upstream":
+
+````
+git remote add upstream https://github.com/hurwitzlab/biosys-analytics.git
+````
+
+When you need to get new content, do this:
+
+````
+git pull upstream master
+````
+
 # About The Author
 
 I went to college (the University of North Texas, 1990) thinking I might study music and become a professional drummer. I decided against that particular career but didn't have an alternative. I changed my major a couple of times (business, communications) before deciding on an English literature degree just so I could finish  Never did programming cross my mind, and biology was my most loathed science.
