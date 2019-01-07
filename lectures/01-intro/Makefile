@@ -1,2 +1,2 @@
 pdf:
-	pandoc intro.md -o 00-intro.pdf
+	pandoc intro.md -o 01-intro.pdf
