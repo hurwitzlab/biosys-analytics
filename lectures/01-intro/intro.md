@@ -1,6 +1,11 @@
 # BE 434/535 Biosystems Analytics
 
-The field of "bioinformatics" is biology plus data science. This course assumes you have some understanding of the Unix command line and some programming experience. 
+The field of "bioinformatics" is biology plus data science. This course assumes you have some understanding of the Unix command line and some programming experience. At the conclusion of this course, you should be able to:
+
+* Write, test, and document programs in bash and Python
+* Use the source code management system Git to version, share, and distribute code
+* Use parallelization techniques and hardware (HPC) to run programs faster
+* Package and distribute software to create reproducible workflows
 
 # Ocelote (UA HPC)
 
@@ -44,6 +49,8 @@ Please select a target system to connect to:
 (D) Disable menu
 ```
 
+Either way, proceed to log in to Ocelote for your work. If you are uncertain which machine you are on, use `hostname`. If you are on the bastion host, it will be "gatekeeper.hpc.arizona.edu." Once you are on Ocelote, the hostname should be something like "login1" or "login2."
+
 # SSH Keys
 
 If you would like to avoid the 2-factor authentication, then copy your SSH private key to the target system like so: 
@@ -51,7 +58,7 @@ If you would like to avoid the 2-factor authentication, then copy your SSH priva
 1) On your local machine and `cd ~/.ssh`. If you do not have one, then run `ssh-keygen`.
 2) Copy the contents of the `id_rsa.pub` file (the "public" part of your key). If you do not have one, then run `ssh-keygen`.
 3) Login to the target system and `cd ~/.ssh`. If you do not have one, then run `ssh-keygen`.
-4) Edit the `authorized_keys` file (e.g., with `nano`) and paste in the public key.
+4) Edit the `authorized_keys` file (e.g., with `nano`) and paste in the public key. Save and exit your editor.
 5) Set the permissions with `chmod 600 authorized_keys`
 6) Test your login from your local machine.
 
@@ -64,18 +71,19 @@ You will use the `git` source code management program to gain access to the cour
 git version 2.2.2
 ````
 
-All the code examples presented here can be found at:
+Github.com is a commercial company that hosts Git repositories. It is free to create accounts and host small, public repositories. You will need to create an account and then share your username with us. 
+I suggest you add your public SSH key (see "SSH Keys" above) into your Github "Settings/SSH and GPG Keys" so that you can more easily push and pull into your repositories. You'll need to add a key from each machine you intend to work from, i.e., both your laptop and Ocelote.
+
+Once you have an account, visit the course repo in a web browser and "fork" our repository into your own account by clicking the "Fork" button in the upper-right corner. This will create a copy of our repository into your own account.
 
 ```
 https://github.com/hurwitzlab/biosys-analytics
 ```
 
-Visit the above URL in a browser to look around. You will need to create a Github account (it's free), and then "fork" our repository into your own account by clicking the "Fork" button in the upper-right corner. Then you can "clone" the repo into your own account. I suggest you add your public SSH key (see "SSH Keys" above) into your Github "Settings/SSH and GPG Keys" so that you can more easily push and pull into your repositories. You'll need to add a key from each machine you intend to work from, i.e., both your laptop and Ocelote.
-
 Now you can copy the course repo to your machine(s) like so:
 
 ```
-[hpc:login3@~]$ git clone git@github.com:kyclark/biosys-analytics.git
+[hpc:login3@~]$ git clone git@github.com:yourusername/biosys-analytics.git
 Cloning into 'biosys-analytics'...
 remote: Enumerating objects: 16, done.
 remote: Counting objects: 100% (16/16), done.
@@ -86,13 +94,13 @@ Resolving deltas: 100% (1/1), done.
 Checking connectivity... done.
 ```
 
-To stay together, you will add the class Github repo as an "upstream":
+To stay together, you will add the class Github repo as an "upstream" repo:
 
 ````
 git remote add upstream https://github.com/hurwitzlab/biosys-analytics.git
 ````
 
-When you need to get new content, do this:
+When you need to get new content, "pull" from the upstream repo's "master" branch:
 
 ````
 git pull upstream master

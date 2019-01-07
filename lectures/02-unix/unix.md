@@ -61,6 +61,32 @@ I assume you are on a command line by now, so let's look at some commands.
 * **md5sum**: calculate the MD5 checksum of a file
 * **diff**: find the differences between two files
 
+# The Unix filesystem hierarchy
+
+The Unix filesystem can thought of as a graph or a tree. The root is "/" and is called the "root directory." We can `ls` or `tree` commands to see what's there:
+
+![Tree listing of Ocelote's root directory (`tree -d -L 1 /`).](files.png)
+
+Try running `tree $HOME` to see what's there.
+
+# Moving around the filesystem
+
+You can print your current working directory either with `pwd` or `echo $PWD`.
+
+The `cd` command is used to "change directory," e.g., `cd /rsgrps/bh_class/`. If you wish to return to the previous working directory, use `cd -`. 
+
+If you provide no argument to `cd`, it will change to your `$HOME` directory which is also known in bash by the `~` (tilde or twiddle). So these three commands are equivalent:
+
+* `cd`
+* `cd ~`
+* `cd $HOME`
+
+Once you are in a directory, use `ls` to inspect the contents. If you do not provide an argument to `ls`, it assumes the current directory which has the alias `.` The parent directory is `..`. 
+
+You can use both absolute and relative paths with `cd`. An absolute path starts from the root directory, e.g., "/usr/local/bin/". A relative path does not start with the leading `/` and assumes a path relative to your current working directory. If you were in the "/usr/local" directory and wanted to change to "/usr/local/bin", you could either `cd /usr/local/bin` (absolute) or `cd bin` (relative to "/usr/local"). 
+
+Once you are in "/usr/local/bin", what would `pwd` show after you did `cd ../..`?
+
 # Chaining commands
 
 Most Unix commands use STDIN ("standard in"), STDOUT ("standard out"), and STDERR ("standard error"). For instance, the `env` program will show you key/value pairs that describe. your environment -- things like your user name (`$USER`), your shell (`$SHELL`), your current working directory (`$PWD`). It can be quite a long list, so you could send the output (STDOUT) of `env` to `head` to see just the first few lines:
@@ -95,7 +121,7 @@ aardwolf
 Aaron
 ````
 
-Without any arguments, `head` assumes you must want it to read from STDIN, which is why you can chain any program's STDOUT into `head`. For instance, you could use `grep` to look for lines with the word "TERM" in them:
+Without any arguments, `head` assumes you must want it to read from STDIN. Many other programs will assume STDIN if not provided an argument. For instance, you could pipe `env` into `grep` to look for lines with the word "TERM" in them:
 
 ````
 $ env | grep TERM
@@ -144,7 +170,7 @@ $ wget --help | grep clobber
 * **\#**: "hash" (NOT "hashtag") or "pound"
 * **$**: "dollar"
 * **!**: "bang"
-* **\#!**: "shebang"
+* **#!**: "shebang"
 * **^**: "caret"
 * **PID**: "pid" (not pee-eye-dee)
 * **~**: "twiddle" or "tilde"; shortcut to your home directory when alone, shortcut to another user's home directory when used like "~bhurwitz"
@@ -153,9 +179,29 @@ $ wget --help | grep clobber
 
 You will see things like `$USER` and `$HOME` that start with the `$` sign. These are variables because they can change from person to person, system to system. On most systems, my username is "kyclark" but I might be "kclark" or "kyclark1" on others, but on all systems `$USER` refers to whatever value is defined for my username. Similarly, my `$HOME` directory might be "/Users/kyclark," "/home1/03137/kyclark," or "/home/u20/kyclark," but I can always refer to the idea of my home directory with the variable `$HOME`.
 
+When you are assigning a variable, you do not use the `$`. 
+
+````
+[hpc:login3@~]$ SECRET=ilikecake
+[hpc:login3@~]$ echo $SECRET
+ilikecake
+[hpc:login3@~]$ echo SECRET
+SECRET
+````
+
+To remove a variable from your environment, use `unset`:
+
+````
+[hpc:login3@~]$ unset SECRET
+[hpc:login3@~]$ echo $SECRET
+
+````
+
+Notice that there is no error when referencing a variable that does not exist or has not been set.
+
 # Control sequences
 
-If you launch a program that won't stop, you can use CTRL-C to send an "interrupt" signal to the program. If it is well-behaved, it should stop, but it may not. You can open another terminal on the machine and run `ps -fu $USER` to find all the programs you are running.
+If you launch a program that won't stop, you can use CTRL-C (where "CTRL" is the "control" key sometime written "^C" or "^-C") to send an "interrupt" signal to the program. If it is well-behaved, it should stop, but it may not. For example, perhaps I've tried to use a text editor to open a 10G FASTA file and now my terminal is unresponsive because the editor is using all available memory. I could open another terminal on the machine and run `ps -fu $USER` to find all the programs I am running:
 
 ```
 $ ps -fu $USER
@@ -164,29 +210,13 @@ kyclark  31718 31692  0 12:16 ?        00:00:00 sshd: kyclark@pts/75
 kyclark  31723 31718  0 12:16 pts/75   00:00:00 -bash
 kyclark  33265 33247  0 12:16 ?        00:00:00 sshd: kyclark@pts/86
 kyclark  33277 33265  1 12:16 pts/86   00:00:00 -bash
-kyclark  33792 33277  9 12:17 pts/86   00:00:00 vim run.p6
+kyclark  33792 33277  9 12:17 pts/86   00:00:00 vim maize_genome.fasta
 kyclark  33806 31723  0 12:17 pts/75   00:00:00 ps -fu kyclark
 ```
 
-The PID is the "process ID" and the PPID is the "parent process ID."  In the above table, let's assume my "vim" session was locked up. I could `kill 33792`. If in a reasonable amount of time (a minute or so) that doesn't work, common wisdom says you `kill -9` to really, really tell it to shut down, but:
+The PID is the "process ID" and the PPID is the "parent process ID."  In the above table, let's assume I want to kill `vim`, so I type `kill 33792`. If in a reasonable amount of time (a minute or so) that doesn't work, I could use `kill -9` (but it's considered a bit uncouth).
 
-> No no no. Don't use kill -9.
->
-> It doesn't give the process a chance to cleanly:
->
-> * shut down socket connections
-> * clean up temp files
-> * inform its children that it is going away
-> * reset its terminal characteristics
->
-> and so on and so on and so on.
->
-> Generally, send 15, and wait a second or two, and if that doesn't work, send 2, and if that doesn't work, send 1. If that doesn't, REMOVE THE BINARY because the program is badly behaved!
->
-> Don't use kill -9. Don't bring out the combine harvester just to tidy up the flower pot. 
-> cf. [http://porkmail.org/era/unix/award.html\#uuk9letter](http://porkmail.org/era/unix/award.html#uuk9letter)
-
-Along with CTRL-C, you should learn about CTRL-Z to put a process into the background. This could be handy if, say, you were in an editor, you make a change to your code, you CTRL-Z to background the editor, you run the script to see if it worked, then you `fg` to bring it back to the foreground or `bg` it to have it resume running in the background. I would consider this a sub-optimal work environment, but it's fine if you were for some reason limited to a single terminal window.
+CTRL-Z is used to put a process into the background. This could be handy if, say, you were in an editor, you make a change to your code, you CTRL-Z to background the editor, you run the script to see if it worked, then you `fg` to bring it back to the foreground or `bg` it to have it resume running in the background. I would consider this a sub-optimal work environment, but it's fine if you were for some reason limited to a single terminal window.
 
 Generally if you want a program to run in the background, you would launch it from the command line with an ampersand ("&") at the end:
 
@@ -194,7 +224,7 @@ Generally if you want a program to run in the background, you would launch it fr
 $ my-background-prog.sh &
 ```
 
-Lastly, know that most Unix programs interpret CTRL-D as the end-of-input signal. You can use this to send the "exit" command to most any interactive program, even your shell. Here's a way to enter some text into a file directly from the command line without using a text editor. After typing the last line (i.e., type "chickens.&lt;Enter&gt;"), type CTRL-D:
+Lastly, most Unix programs interpret CTRL-D as the end-of-input signal. You can use this to send the "exit" command to most any interactive program, even your shell. Here's a way to enter some text into a file directly from the command line without using a text editor. After typing the last line (i.e., type "chickens.&lt;Enter&gt;"), type CTRL-D:
 
 ```
 $ cat > wheelbarrow
@@ -234,56 +264,54 @@ chickens.
 * Up/down cursor keys: go backwards/forwards in your history
 * CTRL-A, CTRL-E: jump to the start, end of the command line when in emacs mode (default)
 
-> N.B.: If you are on a Mac, it's easy to remap your (useless) CAPSLOCK key to CTRL. Much less strain on your hand as you will find you need CTRL quite a bit, even more so if you choose emacs for your $EDITOR.
+NB: If you are on a Mac, it's easy to remap your (useless) CAPSLOCK key to CTRL. Much less strain on your hand as you will find you need CTRL quite a bit, even more so if you choose emacs for your $EDITOR.
 
 # Altering your $PATH
 
-As you see above, "env" will list all the key-value pairs defining your environment. For instance, everyone has a `$HOME` directory that you can see with `echo $HOME`. The exact location of `$HOME` can vary among systems, e.g.:
-
-* Mac: /Users/kyclark
-* Ocelot: /home/u20/kyclark
-* Stampede: /home1/03137/kyclark
-
-Your `$PATH` setting is extremely important as it defines the directory locations that will be searched (in order) to find programs. Here's my `$PATH` on the UA HPC:
+Your `$PATH` setting is an ordered, colon-delimited list of directories that will be searched to find programs. Run `echo $PATH` to see yours. Here's my `$PATH` on the UA HPC:
 
 ```
-[hpc:login3@~]$ echo $PATH | sed "s/:/:\n/g"
-/rsgrps/bhurwitz/hurwitzlab/bin:
-/home/u20/kyclark/.cargo/bin:
-/home/u20/kyclark/.local/bin:
-/cm/local/apps/gcc/6.1.0/bin:
-/cm/shared/uaapps/pbspro/18.2.1/sbin:
-/cm/shared/uaapps/pbspro/18.2.1/bin:
-/opt/TurboVNC/bin:
-/cm/shared/uabin:
-/usr/lib64/qt-3.3/bin:
-/cm/local/apps/environment-modules/4.0.0//bin:
-/usr/local/bin:
-/bin:
-/usr/bin:
-/usr/local/sbin:
-/usr/sbin:
-/sbin:
-/sbin:
-/usr/sbin:
+[hpc:login3@~]$ echo $PATH | sed "s/:/\n/g"
+/rsgrps/bh_class/bin
+/home/u20/kyclark/.cargo/bin
+/home/u20/kyclark/.local/bin
+/cm/local/apps/gcc/6.1.0/bin
+/cm/shared/uaapps/pbspro/18.2.1/sbin
+/cm/shared/uaapps/pbspro/18.2.1/bin
+/opt/TurboVNC/bin
+/cm/shared/uabin
+/usr/lib64/qt-3.3/bin
+/cm/local/apps/environment-modules/4.0.0//bin
+/usr/local/bin
+/bin
+/usr/bin
+/usr/local/sbin
+/usr/sbin
+/sbin
+/sbin
+/usr/sbin
 /cm/local/apps/environment-modules/4.0.0/bin
 ```
 
-I've used "sed" to add a newline after each colon so you can more easily see that the directories are separated by colons. Notice that I have the shared "hurwitzlab" directory first in my path. Much of our work will require access to tools that are not installed by default on the HPC. You could build them into your own `$HOME` directory, but it will be easier if you just add this shared directory to your $PATH. From the command line, you can do this:
+I've used "sed" to add a newline after each colon so you can more easily see that the directories are separated by colons. Notice that I have the shared "/rsgrps/bh_class/bin" directory first in my path. Much of our work will require access to tools that are not installed by default on the HPC. You could build them into your own `$HOME` directory, but it will be easier if you just add this shared directory to your $PATH. From the command line, you can do this:
 
 ```
 export PATH=/rsgrps/bhurwitz/hurwitzlab/bin:$PATH
 ```
 
-You just told your shell (bash) to set the `$PATH` variable to our "hurwitzlab" directory and then whatever it was set to before. Obviously we want this to happen each time we log in, so we can add this command to `$HOME/.bashrc`:
+You just told your shell (bash) to set the `$PATH` variable to our "/rsgrps/bh_class/bin" directory and then whatever it was set to before. When you log out, however, this will be lost. Since we want this to happen each time we log in, so we can add this command to `$HOME/.bashrc`:
 
 ```
 echo "export PATH=/rsgrps/bhurwitz/hurwitzlab/bin:$PATH" >> ~/.bashrc
 ```
 
-> N.B., "dotfiles" are files with names that begin with a dot. They are normally hidden from view unless you use `ls -a` to list "all" files. A single dot `.` means the current directory, and two dots `..` mean the parent directory. Your ".bashrc" (or maybe ".profile" or maybe ".bash_profile" depending on your system) file is read every time you login to your system, so you can remember your customizations. "Rc" may mean "resource configuration," but who really knows?
-
 As you find or create useful programs that you would like to have available globally on your system (i.e., not just in the current working directory), you can create a location like `$HOME/bin` (or my preferred `$HOME/.local/bin`) and add this to your `$PATH` as well. You can add as many directories as you like (within reason).
+
+# Dotfiles
+
+"Dotfiles" are files with names that begin with a dot. They are normally hidden from view unless you use `ls -a` to list "all" files. A single dot `.` means the current directory, and two dots `..` mean the parent directory. Your ".bashrc" (or maybe ".profile" or maybe ".bash_profile" depending on your system) file is read every time you login to your system, so you can remember your customizations. "Rc" may mean "resource configuration," but who really knows?
+
+After a while, you may wish to collect your dotfiles into a Github repo, e.g., https://github.com/kyclark/dotfiles.
 
 # Aliases
 

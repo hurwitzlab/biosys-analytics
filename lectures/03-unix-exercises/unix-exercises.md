@@ -1,6 +1,6 @@
 # Unix exercises
 
-
+Here are some tasks that will introduce how the commands from the previous chapter can be combined to get things done. Sometimes you can get exactly what you need with command-line tools and never need to write a program!
 
 ## Find the number of unique users on a shared system
 
@@ -96,10 +96,10 @@ $ program 1>out 2>err
 
 The first example puts STDERR into a file called "err" and lets STDOUT print to the terminal. The second example captures STDOUT into a file called "out" while STDERR goes to "err."
 
-**NB**: Sometimes a program will complain about things that you cannot fix, e.g., `find` may complain about file permissions that you don't care about. In those cases, you can redirect STDERR to a special filehandle called `/dev/null` where they are forgotten forever -- kind of like the "memory hole" in 1984.
+NB: Sometimes a program will complain about things that you cannot fix, e.g., `find` may complain about file permissions that you don't care about. In those cases, you can redirect STDERR to a special filehandle called `/dev/null` where they are forgotten forever -- kind of like the "memory hole" in 1984.
 
 ```
-find / -name my-file.txt 2>/dev/null
+$ find / -name my-file.txt 2>/dev/null
 ```
 
 ## Count "oo" words
@@ -148,7 +148,7 @@ $ grep 'oo' /usr/share/dict/words | grep 'ow' | wc -l
 158
 ```
 
-How many _do not_ contain the "ow" sequence?
+How many _do not_ contain the "ow" sequence? Use `grep -v` to invert the match:
 
 ```
 $ grep 'oo' /usr/share/dict/words | grep -v 'ow' | wc -l
@@ -162,309 +162,178 @@ $ bc <<< 158+10302
 10460
 ```
 
-Excellent. Smithers, massage my brain.
+# Find unclustered protein sequences
 
-
-
-## Something with sequences
-
-Now we will get some sequence data from the iMicrobe FTP site. Both `wget` and `ncftpget` will do the trick:
+A labmate wants help finding the sequences of proteins that failed to cluster. Here is the setup:
 
 ```
-$ mkdir -p ~/contigs
-$ cd !$
-$ wget ftp://ftp.imicrobe.us/biosys-analytics/contigs/contigs.zip
+$ wget ftp://ftp.imicrobe.us/biosys-analytics/exercises/unclustered-proteins.tgz
+$ tar xvf unclustered-proteins.tgz
+$ cd unclustered-proteins
 ```
 
-> NB: How do we know we got the correct data?  Go back and look at that FTP site, and you will see that there is a "contigs.zip.md5" file that we can `less` on the server to view the contents:
+The "README" contains our instructions:
 
 ```
-$ ncftp ftp://ftp.imicrobe.us/biosys-analytics/contigs
-NcFTP 3.2.6 (Dec 04, 2016) by Mike Gleason (http://www.NcFTP.com/contact/).
-Connecting to 150.135.44.10...
-Welcome to the imicrobe.us repository
-Logging in...
-Login successful.
-Logged in to ftp.imicrobe.us.
-Current remote directory is /biosys-analytics/contigs.
-ncftp /biosys-analytics/contigs > ls
-contigs.zip        contigs.zip.md5
-ncftp /biosys-analytics/contigs > cat contigs.zip.md5
-1b7e58177edea28e6441843ddc3a68ab  contigs.zip
-ncftp /biosys-analytics/contigs > exit
+The file "cdhit60.3+.clstr" contains all of the GI numbers for
+proteins that were clustered and put into hmm profiles.  The file
+"proteins.fa" contains all proteins (the header is only the GI
+number).  Extract the proteins from the "proteins.fa" file that were
+not clustered.
 ```
 
-You can read up on MD5 ([https://en.wikipedia.org/wiki/Md5sum](https://en.wikipedia.org/wiki/Md5sum)) to understand that this is a signature of the file. If we calculate the MD5 of the file we dowloaded and it matches what we see on the server, then we can be sure that we have the exact file that is on the FTP site:
+If we look at the IDs in the proteins file, we'll see they are integers:
 
 ```
-$ md5 contigs.zip
-MD5 (contigs.zip) = 1b7e58177edea28e6441843ddc3a68ab
+$ grep '>' proteins.fa | head -5
+>388548806
+>388548807
+>388548808
+>388548809
+>388548810
 ```
 
-> Yes, those two sums match. Note that sometimes the program is also named `md5sum`.
-
-So, back to the exercise. Let's unpack the contigs:
+Where can we find those protein IDs in the "cdhit60.3+.clstr" file?
 
 ```
-$ unzip contigs.zip
-Archive:  contigs.zip
-  inflating: group12_contigs.fasta
-  inflating: group20_contigs.fasta
-  inflating: group24_contigs.fasta
-$ rm contigs.zip
+$ head -5 cdhit60.3+.clstr
+>Cluster_5086
+0    358aa, >gi|317183610|gb|ADV... at 66.76%
+1    361aa, >gi|315661179|gb|ADU... at 70.36%
+2    118aa, >gi|375968555|gb|AFB... at 70.34%
+3    208aa, >gi|194307477|gb|ACF... at 61.54%
 ```
 
-These files are in FASTA format ([https://en.wikipedia.org/wiki/FASTA\_format](https://en.wikipedia.org/wiki/FASTA_format)), which basically looks like this:
+The format of the file is similar to a FASTA file where the "&gt;" sign at the left-most column identifies a cluster with the following lines showing the IDs of the sequences in the cluster.  To extract just the clustered IDs, we cannot just do `grep '>'` as we'll get both the cluster IDs and the protein IDs.
 
 ```
->MCHU - Calmodulin - Human, rabbit, bovine, rat, and chicken
-ADQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTID
-FPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREA
-DIDGDGQVNYEEFVQMMTAK*
->gi|5524211|gb|AAD44166.1| cytochrome b [Elephas maximus maximus]
-LCLYTHIGRNIYYGSYLYSETWNTGIMLLLITMATAFMGYVLPWGQMSFWGATVITNLFSAIPYIGTNLV
-EWIWGGFSVDKATLNRFFAFHFILPFTMVALAGVHLTFLHETGSNNPLGLTSDSDKIPFHPYYTIKDFLG
-LLILILLLLLLALLSPDMLGDPDNHMPADPLNTPLHIKPEWYFLFAYAILRSVPNKLGGVLALFLSIVIL
-GLMPFLHTSKHRSMMLRPLSQALFWTLTMDLLTLTWIGSQPVEYPYTIIGQMASILYFSIILAFLPIAGX
-IENY
+$ grep '>' cdhit60.3+.clstr | head -5
+>Cluster_5086
+0    358aa, >gi|317183610|gb|ADV... at 66.76%
+1    361aa, >gi|315661179|gb|ADU... at 70.36%
+2    118aa, >gi|375968555|gb|AFB... at 70.34%
+3    208aa, >gi|194307477|gb|ACF... at 61.54%
 ```
 
-Header lines start with "&gt;", then the sequence follows. Sequences may be broken up over several lines of 50 or 80 characters, but it's just as common to see the sequences take only one (sometimes very long) line. Sequences may be nucleotides, proteins, very short DNA/RNA, longer contigs (shorter strands assembled into contiguous regions), or entire chromosomes or even genomes.
-
-So, how many sequences are in "group12\_contigs.fasta"?  To answer, we just need to count how many times we see "&gt;". We can do that with "grep":
+We'll need to use a regular expression (the `-e` for "extended" on most greps, but sometimes not required) to say that we are looking at the beginning of a line `^` for a `>`:
 
 ```
-$ grep > group12_contigs.fasta
-Usage: grep [OPTION]... PATTERN [FILE]...
-Try 'grep --help' for more information.
+$ grep -e '^>' cdhit60.3+.clstr | head -5
+>Cluster_5086
+>Cluster_10030
+>Cluster_8374
+>Cluster_13356
+>Cluster_7732
 ```
 
-What is going on?  Remember when we captured the "oo" words that we used the "&gt;" symbol to tell Unix to _redirect_ the output of `grep` into a file. We need to tell Unix that we mean a literal greater-than sign by placing it in single or double quotes or putting a backslash in front of it:
+and then invert that with "-v":
 
 ```
-$ grep '>' group12_contigs.fasta
-$ grep \> group12_contigs.fasta
+$ grep -v '^>' cdhit60.3+.clstr | head -5
+0    358aa, >gi|317183610|gb|ADV... at 66.76%
+1    361aa, >gi|315661179|gb|ADU... at 70.36%
+2    118aa, >gi|375968555|gb|AFB... at 70.34%
+3    208aa, >gi|194307477|gb|ACF... at 61.54%
+4    358aa, >gi|291292536|gb|ADD... at 68.99%
 ```
 
-You should actually see nothing because something quite insidious happened with that first "grep" statement -- it overwrote our original "group12\_contigs.fasta" with the result of "grep"ing for nothing, which is nothing:
+The integer protein IDs we want are in the third column of this output when split on whitespace.  The tool `awk` is perfect for this, and whitespace is the default split character (as opposed to `cut` which uses tabs):
 
 ```
-$ ls -l group12_contigs.fasta
--rw-rw---- 1 kyclark staff 0 Aug 10 15:08 group12_contigs.fasta
+$ grep -ve '^>' cdhit60.3+.clstr | awk '{print $3}' | head -5
+>gi|317183610|gb|ADV...
+>gi|315661179|gb|ADU...
+>gi|375968555|gb|AFB...
+>gi|194307477|gb|ACF...
+>gi|291292536|gb|ADD...
 ```
 
-Ugh, OK, I have to go back and `wget` the "contigs.zip" file to restore it. That's OK. Things like this happen all the time.
+The protein ID is still nestled there in the second field when splitting on the vertical bar (pipe).  Again, `awk` is perfect, but we need to tell it to split on something other than the default by using the "-F" flag:
 
 ```
-$ ls -lh group12_contigs.fasta
--rw-rw---- 1 kyclark staff 2.9M Aug 10 14:38 group12_contigs.fasta
+$ grep -ve '^>' cdhit60.3+.clstr | awk '{print $3}' | \
+  awk -F'|' '{print $2}' | head -5
+317183610
+315661179
+375968555
+194307477
+291292536
 ```
 
-Now that I have restored my data, I want to count how many greater-than signs in the file:
+These are the protein IDs for those that were successfully clustered, so we need to capture these to a file which we can do with a redirect `>`. Since each protein might have been clustered more than once, so I should `sort | uniq` the list:
 
 ```
-$ grep '>' group12_contigs.fasta | wc -l
-132
+$ grep -ve '^>' cdhit60.3+.clstr | awk '{print $3}' | \
+  awk -F"|" '{print $2}' | sort | uniq > clustered-ids.o
 ```
 
-Hey, I could see doing that often. Maybe we should make this into an "alias" (see above). The problem is that the "argument" to the function (the filename) is stuck in the middle of the chain of commands, so it would make it tricky to use an alias for this. We can create a bash function that we add to our `$HOME/.bashrc`:
+The "proteins.fa" is actually a little problematic. Some of the IDs have extra information. If you `grep '^>' proteins.fa`, you will see 220K IDs scroll by, not all of which are just integers. Let's isolate those that do not look like integers.
+
+First we can remove the leading ">" from the FASTA header lines with this:
+
+````
+$ grep '^>' proteins.fa | sed "s/^>//"
+````
+
+If I can find a regular expression that matches what I want, then I can use `grep -v` to invert it to find the complement. `^\d+$` will do the trick. Let's break down that regex:
 
 ```
-function countseqs() {
-  grep '>' $1 | wc -l
-}
+^ \d + $
+1 2  3 4
 ```
 
-After you add this, remember to source this file to make it available:
+1. start of the line
+2. a digit (0-9)
+3. one or more
+4. end of the line
+
+This particular regex uses extensions introduced by the Perl programming language, so we need to use the `-P` flag. Add the `-v` to invert it:
 
 ```
-$ source ~/.bashrc
-$ countseqs group12_contigs.fasta
-132
+$ grep -e '^>' proteins.fa | sed "s/^>//" | grep -v -P '^\d+$' | head -5
+26788002|emb|CAD19173.1| putative RNA helicase, partial [Agaricus bisporus virus X]
+26788000|emb|CAD19172.1| putative RNA helicase, partial [Agaricus bisporus virus X]
+985757046|ref|YP_009222010.1| hypothetical protein [Alternaria brassicicola fusarivirus 1]
+985757045|ref|YP_009222011.1| hypothetical protein [Alternaria brassicicola fusarivirus 1]
+985757044|ref|YP_009222009.1| polyprotein [Alternaria brassicicola fusarivirus 1]
 ```
 
-Same answer. Good. However, someone beat us to the punch. There is a powerful tool called "seqmagick" ([https://github.com/fhcrc/seqmagick](https://github.com/fhcrc/seqmagick)) that will do this (and much, much more). It's installed into the "hurwitzlab/bin" directory, or you can install it locally:
+Looking at the above output, we can see that it would be pretty easy to get rid of everything starting with the vertical bar, and `sed` is perfect for this. Note that we can tell `sed` to do more than one action by separating them with semicolons. Lastly, we need to ensure the IDs are sorted for the next step:
 
 ```
-$ seqmagick info group12_contigs.fasta
-name                  alignment    min_len   max_len   avg_len  num_seqs
-group12_contigs.fasta FALSE           5136    116409  22974.30       132
+$ grep -e '^>' proteins.fa | sed "s/^>//; s/|.*//" | sort > protein-ids.o
 ```
 
-Run "seqmagick -h" to see everything it can do.
-
-Moving on, let's find how many contig IDs in "group12\_contigs.fasta" contain the number "47":
+To find the lines in "protein-ids.o" that are not in "clustered-ids.o", I can use the `comm` (common) command:
 
 ```
-$ grep 47 group12_contigs.fasta > group12_ids_with_47
-[login3@~/work/sequences]$ cat !$
-cat group12_ids_with_47
->Contig_247
->Contig_447
->Contig_476
->Contig_1947
->Contig_4764
->Contig_4767
->Contig_13471
+$ comm -23 protein-ids.o clustered-ids.o > unclustered-ids.o
 ```
 
-Here we did a little "useless use of cat," but it's OK. We also could have used "less" to view the file. Here's another useless use of cat to copy a file:
+Did we get a reasonable answer?
 
-```
-$ cat group12_ids_with_47 > temp1_ids
-```
-
-Additionally, we want to copy the file again to make duplicates:
-
-```
-$ cp group12_ids_with_47 temp2_ids
-```
-
-How can we be sure these files are the same?  Let's use "diff":
-
-```
-$ diff temp1_ids temp2_ids
-```
-
-You should see nothing, which is a case of "no news is good news."  They don't differ in any way. We can verify this with "md5sum":
-
-```
-$ md5sum temp*
-957390ab4c31db9500d148854f542eee  temp1_ids
-957390ab4c31db9500d148854f542eee  temp2_ids
-```
-
-They are the same file. If there were even one character difference, they would generate different hashes.
-
-Now we will create a file with duplicate IDs:
-
-```
-$ cat temp1_ids temp2_ids > duplicate_ids
-```
-
-Check contents of "duplicate\_ids" using "less" or "cat."  Now grab all of the contigs IDs from "group20\_contigs.fasta" that contain the number "51."  Concatenate the new IDs to the duplicate\_ids file in a file called "multiple\_ids":
-
-```
-$ cp duplicate_ids multiple_ids
-$ grep 51 group20_contigs.fasta >> !$
-grep 51 group20_contigs.fasta >> multiple_ids
-```
-
-Notice the "&gt;&gt;" arrows to indicate that we are _appending_ to the existing "multiple\_ids" file.
-
-Remove the existing "temp" files using a "\*" wildcard:
-
-```
-$ rm temp*
-```
-
-Now let's explore more of what "sort" and "uniq" can do for us. We want to find which IDs are unique and which are duplicated. If we read the manpage ("man uniq"), we see that there are "-d" and "-u" flags for doing just that. However, we've already seen that input to "uniq" needs to be sorted, so we need to remember to do that:
-
-```
-$ sort multiple_ids | uniq -d > temp1_ids
-$ sort multiple_ids | uniq -u > temp2_ids
-$ diff temp*
-1,7c1,11
-< >Contig_13471
-< >Contig_1947
-< >Contig_247
-< >Contig_447
-< >Contig_476
-< >Contig_4764
-< >Contig_4767
----
-> >Contig_10051
-> >Contig_1651
-> >Contig_4851
-> >Contig_5141
-> >Contig_5143
-> >Contig_5164
-> >Contig_5170
-> >Contig_5188
-> >Contig_6351
-> >Contig_9651
-> >Contig_9851
-```
-
-Let's remove our temp files again and make a "clean\_ids" file:
-
-```
-$ rm temp*
-$ sort multiple_ids | uniq > clean_ids
-$ wc -l multiple_ids clean_ids
- 25 multiple_ids
- 18 clean_ids
- 43 total
-```
-
-We can use "sed" to alter the IDs. The "s//" command say to "substitute" the first thing with the second thing, e.g., to replace all occurences of "foo" with "bar", use "s/foo/bar" ([http://stackoverflow.com/questions/4868904/what-is-the-origin-of-foo-and-bar](http://stackoverflow.com/questions/4868904/what-is-the-origin-of-foo-and-bar)).
-
-```
-$ sed 's/C/c/' clean_ids
-$ sed 's/_/./' clean_ids
-$ sed 's/>//' clean_ids > newclean_ids
-```
-
-That last one removes the FASTA file artifact that identifies the beginning of an ID but is not part of the ID. We can use this with "seqmagick" now to extract those sequences and find out how many were found:
-
-```
-$ seqmagick convert --include-from-file newclean_ids group12_contigs.fasta newgroup12_contigs.fasta
-$ seqmagick info !$
-seqmagick info newgroup12_contigs.fasta
-name                     alignment    min_len   max_len   avg_len  num_seqs
-newgroup12_contigs.fasta FALSE           5587     30751  16768.14         7
-```
-
-We can get stats on all our files:
-
-```
-$ seqmagick info *fasta > fasta-info
-$ cat !$
-name                     alignment    min_len   max_len   avg_len  num_seqs
-group12_contigs.fasta    FALSE           5136    116409  22974.30       132
-group20_contigs.fasta    FALSE           5029     22601   7624.38       203
-group24_contigs.fasta    FALSE           5024     81329  12115.70       139
-newgroup12_contigs.fasta FALSE           5587     30751  16768.14         7
-```
-
-We can use "cut" to view various columns:
-
-```
-$ cut -f 2 fasta-info
-$ cut -f 2,4 fasta-info
-$ cut -f 2-4 fasta-info
-```
-
-But it does not line up very nicely. We can use "column" to fix this:
-
-```
-$ cut -f 2-4 fasta-info | column -t
-alignment  min_len  max_len
-FALSE      5136     116409
-FALSE      5029     22601
-FALSE      5024     81329
-FALSE      5587     30751
-```
-
+````
+$ wc -l clustered-ids.o unclustered-ids.o
+  16257 clustered-ids.o
+ 204263 unclustered-ids.o
+ 220520 total
+$ wc -l protein-ids.o
+220520 protein-ids.o
+````
 ## Gapminder
 
-Do the following:
+For this exercise, look in the `biosys-analytics/data/gapminder` directory.
+
+How many "txt" files are in the directory?
 
 ```
-$ git clone https://github.com/kyclark/metagenomics-book
-$ cd metagenomics-book/problems/gapminder/data
-```
-
-How many files are in the "data" directory?
-
-```
-$ ls | wc -l
+$ ls *.txt | wc -l
 ```
 
 How many lines are in each/all of the files?
 
 ```
-$ wc -l *
+$ wc -l *.txt
 ```
 
 You can use `cat` to spew at the entire contents of a file into your shell, but if you'd just like to see the top of a file, you can use:
@@ -478,7 +347,7 @@ If you only want to see 5 lines, use `-n 5` or `-5` .
 For our exercise, we'd like to combine all the files into one file we can analyze. That's easy enough with:
 
 ```
-$ cat * > all.txt
+$ cat *.cc.txt > all.txt
 ```
 
 Let's use `head` to look at the top of file:
@@ -520,170 +389,87 @@ $ wc -l *.cc.txt headers
 $ wc -l all.txt
 ```
 
-How many observations do we have for 1952?
+How many observations do we have for 1952? For this, we need to find all the rows where the second field is equal to "1952," and `awk` will let us do just that.  Normally `awk` splits on whitespace, but we have tab-delimited so we need to use `-F"\t"`. Recipes in `awk` take the form of a CONDITIONAL and an ACTION. If the CONDITIONAL is missing, then the ACTION is applied to all lines. If the ACTION is missing, then the default is to print the entire line. Here we just provide the CONDITIONAL and then count the results:
 
 ```
-$ grep 1952 all.txt | wc -l
-$ cut -f 2 *.cc.txt | grep 1952 | wc -l
+$ awk -F"\t" '$2 == "1952"' all.txt | wc -l
 ```
 
-Those numbers aren't the same!  Why is that?
+How many observations for each year?
 
 ```
-$ grep 1952 all.txt | cut -f 2 | sort | uniq -c
- 142 1952
-   1 1982
-   1 1987
-$ grep 1952 all.txt | grep 198[27]
-Lebanon    1982    3086876    Asia    66.983    7640.519521
-Mozambique    1987    12891952    Africa    42.861    389.8761846
+$ awk -F"\t" '{print $2}' all.txt | sort | uniq -c
 ```
 
-How many observations for every year?
+How many observations are present for Africa (the fourth field is continent)?
 
 ```
-$ cut -f 2 *.cc.txt | sort | uniq -c
+$ awk -F"\t" '$4 == "Africa"' all.txt | wc -l
 ```
 
-How many observations are present for Africa?
+And what are the countries in Africa?
+
+````
+$ awk -F"\t" '$4 == "Africa" {print $1}' all.txt | sort | uniq
+````
+
+How many observations for for each continent?
 
 ```
-$ grep Africa all.txt | wc -l
+$ awk -F"\t" 'NR>1 {print $4}' all.txt | sort | uniq -c
 ```
 
-How many for each continent?
+What was the world population in 1952? To answer this, we need to get the third column when the second column is "1952":
 
 ```
-$ cut -f 4 *.cc.txt | sort | uniq -c
+$ awk -F"\t" '$2 == "1952" {print $3}' all.txt
 ```
 
-What was the world population in 1952?  As we've seen, just using `grep 1952` is not sufficient. We want to take the 3rd column if the 2nd column is equal to "1952."  `awk` will let us do just that. Normally `awk` will split on whitespace, so we need to use `-F"\t"` to tell it to split on the tab (`\t`) character. Use `man awk` to learn more.
+There's a problem because one of the numbers is in scientific notation:
 
 ```
-$ awk -F"\t" '$2 == "1952" { print $3 }' *.cc.txt
-```
-
-I'll bet you didn't notice that one of those numbers was in scientific notation. That's going to cause a problem. Here it is:
-
-```
-$ awk -F"\t" '$2 == "1952" { print $3 }' *.cc.txt | grep [a-z]
+$ awk -F"\t" '$2 == "1952" {print $3}' all.txt | grep [a-z]
 3.72e+08
 ```
 
-We have to throw in a `grep -v` to get rid of that (the `-v` reverses the match), then use the `paste` command is used to put a "+" in between all the numbers:
+Let's just remove that using `grep -v` (the `-v` reverses the match), then use the `paste` command to put a "+" in between all the numbers:
 
 ```
-$ awk -F"\t" '$2 == "1952" { print $3 }' *.cc.txt | grep -v [a-z] | paste -sd+ -
+$ awk -F"\t" '$2 == "1952" {print $3}' *.cc.txt | grep -v [a-z] | paste -sd+ -
 ```
 
 and then we pipe that to the `bc` calculator:
 
 ```
-$ awk -F"\t" '$2 == "1952" { print $3 }' *.cc.txt | grep -v [a-z] | paste -sd+ - | bc
+$ awk -F"\t" '$2 == "1952" {print $3}' *.cc.txt | grep -v [a-z] | paste -sd+ - | bc
 2034957150.999989
 ```
 
 It bothers me that it's not an integer, so I'm going to use `printf` in the `awk` command to trim that:
 
 ```
-$ awk -F"\t" '$2 == "1952" { printf "%d\n", $3 }' *.cc.txt | grep -v [a-z] | paste -sd+ - | bc
+$ awk -F"\t" '$2 == "1952" {printf "%d\n", $3}' *.cc.txt | grep -v [a-z] | paste -sd+ - | bc
 2406957150
 ```
 
-How did population change over the years?  Let's put a list of the unique years into a file called "years" and then `cat` over that to run the above for each year:
+I know that's all a bit crude and absurd, but I thought you might be curious just how far you can take this.
 
-    $ cut -f 2 *.txt | sort | uniq > years
-    $ for year in `cat years`; do echo -n $year ": " && awk -F"\t" "\$2 == $year { printf \"%d\n\", \$3 }" *.cc.txt | grep -v [a-z] | paste -sd+ - | bc; done
-    1952 : 2406957150
-    1957 : 2664404580
-    1962 : 2899782974
-    1967 : 3217478384
-    1972 : 3576977158
-    1977 : 3930045807
-    1982 : 4289436840
-    1987 : 4691477418
-    1992 : 5110710260
-    1997 : 5515204472
-    2002 : 5886977579
-    2007 : 6251013179
-
-That's kind of useful!  Here's how I might put that into a script:
-
-```
-$ cat pop-years.sh
-#!/bin/bash
-
-set -u
-
-YEARS="years"
-
-cut -f 2 ./*.cc.txt | sort | uniq > "$YEARS"
-NUM=$(wc -l $YEARS | awk '{print $1}')
-
-if [[ "$NUM" -lt 1 ]]; then
-  echo "No years ($NUM)!"
-  exit 1
-fi
-
-while read -r YEAR; do
-    echo -n "$YEAR: "
-    awk -F"\t" "\$2 == $YEAR { printf \"%d\\n\", \$3 }" ./*.cc.txt | grep -v "[a-z]" | paste -sd+ - | bc
-done < "$YEARS"
-$ ./pop-years.sh
-1952: 2406957150
-1957: 2664404580
-1962: 2899782974
-1967: 3217478384
-1972: 3576977158
-1977: 3930045807
-1982: 4289436840
-1987: 4691477418
-1992: 5110710260
-1997: 5515204472
-2002: 5886977579
-2007: 6251013179
-```
-
-How has life expectancy changed over the years?  For this we'll need to write a little Python program. I'll `cat` the program so you can see it. You can type this in with `nano` and then do `chmod +x avg.py` to make it executable (or use the one I added):
-
-    $ cat avg.py
-    #!/usr/bin/env python3
-
-    import sys
-
-    args = list(map(float, sys.argv[1:]))
-    print(str(sum(args) // len(args)))
-    $ for year in `cat years`; do echo -n "$year: " && grep $year *.txt | cut -f 5 | xargs ./avg.py; done
-    1952: 49.0
-    1957: 51.0
-    1962: 53.0
-    1967: 55.0
-    1972: 57.0
-    1977: 59.0
-    1982: 61.0
-    1987: 63.0
-    1992: 64.0
-    1997: 65.0
-    2002: 65.0
-    2007: 66.0
-
-How many observations where the life expectancy ("lifeExp," field \#5) is greater than 40?  For this, let's use the `awk` tool. 
+How many observations where the life expectancy ("lifeExp," field #5) is greater than 40? 
 
 ```
 $ awk -F"\t" '$5 > 40' all.txt | wc -l
 ```
 
-How many of those are from Africa?  We can either use `cut` to get the 4th field or ask `awk` to print the 4th field for us:
+How many of those are from Africa?
 
 ```
-$ awk -F"\t" '$5 > 40' all.txt | cut -f 4 | grep Africa | wc -l
-$ awk -F"\t" '$5 > 40 {print $4}' all.txt | grep Africa | wc -l
+$ awk -F"\t" '$5 > 40 && $4 == "Africa"' all.txt
 ```
 
 How many countries had a life expectancy greater than 70, grouped by year?
 
 ```
-$ awk -F"\t" '$5 > 70 { print $2 }' *.cc.txt | sort | uniq -c
+$ awk -F"\t" '$5 > 70 { print $2 }' all.txt | sort | uniq -c
    5 1952
    9 1957
   16 1962
@@ -701,7 +487,7 @@ $ awk -F"\t" '$5 > 70 { print $2 }' *.cc.txt | sort | uniq -c
 How could we add continent to this?
 
 ```
-$ awk -F"\t" '$5 > 70 { print $2 ":" $4 }' *.cc.txt | sort | uniq -c
+$ awk -F"\t" '$5 > 70 { print $2 ":" $4 }' all.txt | sort | uniq -c
 ```
 
 As you look at the data and want to ask more complicated questions like how does `gdpPercap` affect `lifeExp`, you'll find you need more advanced tools like Python or R. Now that the data has been collated and the columns named, that will be much easier.
