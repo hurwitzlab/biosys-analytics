@@ -1,2 +1,3 @@
 epub:
-	pandoc -F ../bin/include.hs 00-intro/intro.md 01-unix/unix.md -o biosys.epub
+	pandoc -F ../bin/include.hs 01-intro/intro.md 02-unix/unix.md \
+		03-unix-exercises/unix-exercises.md -o biosys.epub
