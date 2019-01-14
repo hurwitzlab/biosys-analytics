@@ -1,10 +1,10 @@
 # Unix Exercises
 
-* Make a directory called "files" and download the following files in there:
-** Download the following using their existing filenames (i.e., you will have "usdeclar.txt", etc.):
-*** https://www.constitution.org/usdeclar.txt
-*** https://www.usconstitution.net/const.txt
-** Download https://www.gutenberg.org/files/25344/25344-0.txt as "scarlet.txt"
+* Make a directory (in this directory) called "files" and download the following files in there:
+	* Download the following using their existing filenames (i.e., you will have "usdeclar.txt", etc.):
+		* https://www.constitution.org/usdeclar.txt
+		* https://www.usconstitution.net/const.txt
+	* Download https://www.gutenberg.org/files/25344/25344-0.txt as "scarlet.txt"
 * Show a long listing of the files
 * Show a command to count the number of lines in each file and a total count of lines
 * Show a command that will find the files in this directory which are larger than 50k
@@ -21,4 +21,4 @@
 * Show a command that lists how many lines are in "foo"
 * Remove the file called "foo"
 * Do "history > cmds"
-* "git add" the "files" to your repo and then commit and push
+* "git add -A files" and then commit and push. Ensure you can see your new files on Github.
