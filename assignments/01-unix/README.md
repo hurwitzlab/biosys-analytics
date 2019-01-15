@@ -4,7 +4,7 @@
 	* Download the following using their existing filenames (i.e., you will have "usdeclar.txt", etc.):
 		* https://www.constitution.org/usdeclar.txt
 		* https://www.usconstitution.net/const.txt
-	* Download https://www.gutenberg.org/files/25344/25344-0.txt as "scarlet.txt"
+	* Download https://www.gutenberg.org/files/25344/25344-0.txt as "scarlet.txt" (in one line, i.e., do not download and then rename -- how can you specify the download filename?)
 * Show a long listing of the files
 * Show a command to count the number of lines in each file and a total count of all lines
 * Show a command that will find the files in this directory which are larger than 50k
@@ -20,5 +20,19 @@
 * Show a single command that will take the first 15 lines from each file and append them into a new file called "foo"
 * Show a command that shows how many lines are in "foo"
 * Remove the file called "foo"
+* Show a command that will find all the lines in "scarlet.txt" that begin with a vowel (case-insensitive) and shows you a count by letter like the output in Table 1
 * Do "history > cmds"
 * "git add -A files" and then commit and push. Ensure you can see your new files on Github.
+
+Table 1: Expected output for "scarlet.txt" lines beginning with a vowel:
+
+	  59 A
+	  10 E
+	  91 I
+	  20 O
+	   6 U
+	 651 a
+	 199 e
+	 356 i
+	 358 o
+	 106 u

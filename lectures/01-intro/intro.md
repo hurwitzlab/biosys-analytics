@@ -108,4 +108,6 @@ git pull upstream master
 
 # About The Author
 
+> "Computer programming has always been a self-taught, maverick occupation." - Ellen Ullman
+
 My undergraduate degree was in English and music. I learned to program on my own and on the job starting in 1995, so I started relatively late and wasn’t formally trained in programming until much later in my MS program. I say this so you know that everyone starts somewhere, some later than others, but it’s like the joke “When is the best time to plant a tree? Thirty years ago. When is the second best time? Now.” Now is a great time to become a programmer. I look forward to teaching you what I’ve learned in course of 20+ years of programming in industry and bioinformatics.

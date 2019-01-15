@@ -1,3 +1,20 @@
+# Bioinformatics
+
+Want to be a Bioinformatician? It’s easy. Just learn everything you can about:
+
+* Genetics
+* Molecular Biology 
+* Disease phenotypes
+* \>3 programming languages
+* Software Development frameworks 
+* Best Practices 
+* Version control
+* HPC
+* Systems administration
+* Converting all Data into Excel
+
+Steven Hart
+
 # Unix Basics
 
 Most of bioinformatics happens on Unix-like operating systems. Almost all our tools run from the Unix command line, so bioinformaticians must know how to move data around, run programs, and chain the output of one program into another to create analysis pipelines.
@@ -5,6 +22,8 @@ Most of bioinformatics happens on Unix-like operating systems. Almost all our to
 NB: When you see a `$` given in the example prompts, it is a metacharacter indicating that this is the prompt for a normal (not super-user) account. You should type/copy/paste all the stuff _after_ the `$`. If you ever see a prompt with "#" in a tutorial, it's indicating a command that should be run as the super-user/root account, e.g., installing some software into a system-wide directory so it can be shared by all users. 
 
 # Common Unix Commands
+
+> "The good news about computers is that they do what you tell them to do. The bad news is that they do what you tell them to do." - Ted Nelson
 
 I assume you are on a command line by now, so let's look at some commands.
 
@@ -60,6 +79,7 @@ I assume you are on a command line by now, so let's look at some commands.
 * **nano**: a very simple text editor; until you're ready to commit to vim or emacs, start here
 * **md5sum**: calculate the MD5 checksum of a file
 * **diff**: find the differences between two files
+* **xargs**: take a list from one command, concatenate and pass as the arguments to another command
 
 # The Unix filesystem hierarchy
 
@@ -88,6 +108,8 @@ You can use both absolute and relative paths with `cd`. An absolute path starts 
 Once you are in "/usr/local/bin", what would `pwd` show after you did `cd ../..`?
 
 # Chaining commands
+
+> “Programming is breaking of one big impossible task into several very small possible tasks.” -  Jazzwant
 
 Most Unix commands use STDIN ("standard in"), STDOUT ("standard out"), and STDERR ("standard error"). For instance, the `env` program will show you key/value pairs that describe. your environment -- things like your user name (`$USER`), your shell (`$SHELL`), your current working directory (`$PWD`). It can be quite a long list, so you could send the output (STDOUT) of `env` to `head` to see just the first few lines:
 
@@ -151,6 +173,8 @@ $ fortune | cowsay
 ````
 
 # Manual pages
+
+> "Programming isn't about what you know; it's about what you can figure out." - Chris Pine
 
 The `man` program will show you the manual page for a program, if it exists. Just type `man <program>`, e.g., `man wget`. Inside a manpage, you can use the `/` to search for a string. Use `q` to "quit" `man`. Most programs will also show you a help/usage document if you run them with `-h`, `--help`, or `-help`. I often find it useful to `grep` the help, e.g.:
 
@@ -435,3 +459,7 @@ $ make && make install
 ```
 
 When I'm in an environment with a directory I can share with my team (like the UA HPC), I'll configure the package to install into that shared space so that others can use the program. When I'm on a system like "stampede" where I cannot share with others, I'll usually install into my `$HOME/.local` or some sort of "work" directory.
+
+# The (Data and Software) Carpentries
+
+The Software Carpentry project aims to teach basic command-line usage. You should definitely look through https://swcarpentry.github.io/shell-novice/.
