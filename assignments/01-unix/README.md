@@ -1,5 +1,11 @@
 # Unix Exercises
 
+For this exercise, you will create a "files" directory. In there, create a file called "answers.txt" and cut/paste in the commands that you create along with the output. When you are finished, do the following:
+
+    $ git add files
+    $ git commit -m 'all done' files
+    $ git push
+
 * Make a directory (in this directory) called "files" and download the following files in there:
 	* Download the following using their existing filenames (i.e., you will have "usdeclar.txt", etc.):
 		* https://www.constitution.org/usdeclar.txt
