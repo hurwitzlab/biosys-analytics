@@ -66,9 +66,13 @@ If you would like to avoid the 2-factor authentication, then copy your SSH priva
 
 You will use the "Git" source code management system (https://git-scm.com/) get class materials, maintain versions of your code, and turn in your assignments. Git was originally created by Linus Torvalds, the creator of Linux, for managing the Linux source code.
 
+## Github
+
 Github is a commercially company that hosts Git repositories. We will use their free service to host public repositories, but they make money by hosting private repos. Recently Github was purchased by Microsoft, so they probably will be around at least until the end of the semester. The advantage to use Github (or Gitlab) is that, when you `push` your code to Github, you will have an "off-site" backup. That is, if your computer were to crash, a copy of the repo would still exist on Github's server. It is not necessary to use Github to use Git. You can `git init` and directory you'd like and maintain a repo there. Github has a useful web interface and the ability to add your instructors as "collaborators" allowing us to `push` and `pull` from your repos.
 
 So, step one is to create a Github account and then share your username with your instructors. I suggest you add your public SSH key (see "SSH Keys" above) into your Github "Settings/SSH and GPG Keys" so that you can more easily push and pull into your repositories. You'll need to add a key from each machine you intend to work from, i.e., both your laptop and Ocelote.
+
+# Forking the course repo
 
 Once you have an account, visit the course repo in a web browser. Create a copy of our repository into your own account by clicking the "Fork" button in the upper-right corner.
 
@@ -85,6 +89,8 @@ git version 2.2.2
 
 If you are on Windows, you will probably find it easiest to install "Gitbash" which will give you a Unix-like command line with `git` and many other Unix utilities (but apparently not `wget`).
 
+## Cloning your repo locally
+
 Now you can `clone` your repository to your machine(s) like so:
 
 ```
@@ -99,6 +105,8 @@ Resolving deltas: 100% (1/1), done.
 Checking connectivity... done.
 ```
 
+## Adding course repo upstream
+
 Your version of the repository is a copy of the "hurwitzlab" repo at the time you forked it. To get new content from the "hurwitzlab" repo, you will add the "hurwitzlab" Github repo as an "upstream" repo:
 
 ````
@@ -110,6 +118,27 @@ When you need to get new content from the "hurwitzlab" repo, `pull` from the ups
 ````
 git pull upstream master
 ````
+
+## Committing your work
+
+There are three git commands you must use to put your files into Github so that they can be seen by others:
+
+* add
+* commit
+* push
+
+A basic workflow is:
+
+```
+$ echo hello > hello.txt
+$ git add hello.txt
+$ git commit -m 'added hello' !$
+$ git push
+```
+
+The `-m` argument to `commit` is the commit message.  If you don't specify a message, you will be dropped into your `$EDITOR` to create one.
+
+**If you cannot see your work the Github web interface, then I cannot check it out and grade it.**
 
 # About The Author
 
