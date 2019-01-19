@@ -62,28 +62,33 @@ If you would like to avoid the 2-factor authentication, then copy your SSH priva
 5) Set the permissions with `chmod 600 authorized_keys`
 6) Test your login from your local machine.
 
-# Git(hub)
+# Git 
 
-You will use the `git` source code management program to gain access to the course materials as well as turn in your assignments. Once you are on the Ocelote (or a similar Unix platform), it's quite likely that Git is already installed. Check the version like so:
+You will use the "Git" source code management system (https://git-scm.com/) get class materials, maintain versions of your code, and turn in your assignments. Git was originally created by Linus Torvalds, the creator of Linux, for managing the Linux source code.
+
+Github is a commercially company that hosts Git repositories. We will use their free service to host public repositories, but they make money by hosting private repos. Recently Github was purchased by Microsoft, so they probably will be around at least until the end of the semester. The advantage to use Github (or Gitlab) is that, when you `push` your code to Github, you will have an "off-site" backup. That is, if your computer were to crash, a copy of the repo would still exist on Github's server. It is not necessary to use Github to use Git. You can `git init` and directory you'd like and maintain a repo there. Github has a useful web interface and the ability to add your instructors as "collaborators" allowing us to `push` and `pull` from your repos.
+
+So, step one is to create a Github account and then share your username with your instructors. I suggest you add your public SSH key (see "SSH Keys" above) into your Github "Settings/SSH and GPG Keys" so that you can more easily push and pull into your repositories. You'll need to add a key from each machine you intend to work from, i.e., both your laptop and Ocelote.
+
+Once you have an account, visit the course repo in a web browser. Create a copy of our repository into your own account by clicking the "Fork" button in the upper-right corner.
+
+````
+https://github.com/hurwitzlab/biosys-analytics
+````
+
+You can see your Github repo from github.com, but you must use the command line `git` program to check it out, add files, etc. If you are working on Ocelote or any other Unix platform, it's quite likely that Git is already installed. Check the version like so:
 
 ````
 [hpc:login3@~]$ git --version
 git version 2.2.2
 ````
 
-Github.com is a commercial company that hosts Git repositories. It is free to create accounts and host small, public repositories. You will need to create an account and then share your username with us. 
-I suggest you add your public SSH key (see "SSH Keys" above) into your Github "Settings/SSH and GPG Keys" so that you can more easily push and pull into your repositories. You'll need to add a key from each machine you intend to work from, i.e., both your laptop and Ocelote.
+If you are on Windows, you will probably find it easiest to install "Gitbash" which will give you a Unix-like command line with `git` and many other Unix utilities (but apparently not `wget`).
 
-Once you have an account, visit the course repo in a web browser and "fork" our repository into your own account by clicking the "Fork" button in the upper-right corner. This will create a copy of our repository into your own account.
-
-```
-https://github.com/hurwitzlab/biosys-analytics
-```
-
-Now you can copy the course repo to your machine(s) like so:
+Now you can `clone` your repository to your machine(s) like so:
 
 ```
-[hpc:login3@~]$ git clone git@github.com:yourusername/biosys-analytics.git
+$ git clone git@github.com:yourusername/biosys-analytics.git
 Cloning into 'biosys-analytics'...
 remote: Enumerating objects: 16, done.
 remote: Counting objects: 100% (16/16), done.
@@ -94,13 +99,13 @@ Resolving deltas: 100% (1/1), done.
 Checking connectivity... done.
 ```
 
-To stay together, you will add the class Github repo as an "upstream" repo:
+Your version of the repository is a copy of the "hurwitzlab" repo at the time you forked it. To get new content from the "hurwitzlab" repo, you will add the "hurwitzlab" Github repo as an "upstream" repo:
 
 ````
 git remote add upstream https://github.com/hurwitzlab/biosys-analytics.git
 ````
 
-When you need to get new content, "pull" from the upstream repo's "master" branch:
+When you need to get new content from the "hurwitzlab" repo, `pull` from the upstream repo's "master" branch:
 
 ````
 git pull upstream master
