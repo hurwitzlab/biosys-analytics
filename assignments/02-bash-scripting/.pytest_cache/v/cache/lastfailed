@@ -1,0 +1,7 @@
+{
+  "test.py::test_bad_input": true,
+  "test.py::test_catn_run": true,
+  "test.py::test_exists": true,
+  "test.py::test_head_run": true,
+  "test.py::test_usage": true
+}
