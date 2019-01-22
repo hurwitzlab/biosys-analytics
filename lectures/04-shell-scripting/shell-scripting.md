@@ -1,5 +1,7 @@
 # Minimally competent bash scripting
 
+> "We build our computer (systems) the way we build our cities: over time, without a plan, on top of ruins." - Ellen Ullman
+
 Bash is the worst shell scripting language except for all the others. For many of the analyses you'll write, all you will need is a simple bash script, so let's figure out how to write a decent one. I'll share with you what I've found to be the minimal amount of bash I use.
 
 # Statements
@@ -209,11 +211,11 @@ fi
 There are many other test you can use. See `man test` for a complete list. The `-s` is handy to see if a file is empty. You can use more than one test at a time with the `&&` ("and") or `||` ("or") operator.
 
 ````
-if [[ -f "$ARG" ]] && [[ -s "$ARG" ]]
+if [[ -f "$ARG" ]] && [[ -s "$ARG" ]]; then
     echo "$ARG is a file and is not empty"
 fi
 
-if [[ ! -f "$ARG" ]] || [[ ! -s "$ARG" ]]
+if [[ ! -f "$ARG" ]] || [[ ! -s "$ARG" ]]; then
     echo "$ARG is a NOT file or is empty"
 fi
 ````
