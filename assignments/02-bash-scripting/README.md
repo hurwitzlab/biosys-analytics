@@ -29,8 +29,8 @@ $ cat -n files/sonnet-29.txt
 
 You will create a bash script called "cat-n.sh" that mimics this output. Here are the expectations of your program:
 
-* Your program will expect to receive an argument in `$1`
 * If there are no arguments, it should print a "Usage" and exit *with an error code*
+* Your program will expect to receive an argument in `$1`
 * If the argument is not a file, it should notify the user and exit *with an error code*
 * It will iterate over the lines in the file and print the line number, a space, and the line of the file
 * Your output will differ from regular `cat -n` as I won't expect you to right-align the numbers. 
@@ -68,8 +68,8 @@ Write a bash script that mimics the "head" utility where it will print the first
 
 You will create a bash script called "head.sh" that mimics this output. Here are the expectations of your program:
 
-* Your program will expect to receive an argument in `$1` and maybe a second in `$2`
 * If there are no arguments, it should print a "Usage" and exit *with an error code*
+* Your program will expect to receive an argument in `$1` and maybe a second in `$2`
 * If the first argument is not a file, it should notify the user and exit *with an error code*
 * If the second argument is missing, use the value "3"
 * Print the number of lines requested by the user by iterating over the lines in the file and exiting the loop appropriately
