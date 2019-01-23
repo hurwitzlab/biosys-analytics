@@ -2,6 +2,8 @@
 
 > "We build our computer (systems) the way we build our cities: over time, without a plan, on top of ruins." - Ellen Ullman
 
+> "The most effective debugging tool is still careful thought, coupled with judiciously placed print statements." - Brian W. Kernighan,  Unix for Beginners (1979)
+
 Bash is the worst shell scripting language except for all the others. For many of the analyses you'll write, all you will need is a simple bash script, so let's figure out how to write a decent one. I'll share with you what I've found to be the minimal amount of bash I use.
 
 # Statements
