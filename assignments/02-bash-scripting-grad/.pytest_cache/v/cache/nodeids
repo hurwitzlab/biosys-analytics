@@ -1,7 +1,0 @@
-[
-  "test.py::test_exists",
-  "test.py::test_usage",
-  "test.py::test_hello_too_many",
-  "test.py::test_hello",
-  "test.py::test_gap"
-]
