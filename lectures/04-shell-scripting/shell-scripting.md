@@ -228,11 +228,11 @@ The `exit` function will cease all operations and immediately exit. With no argu
 
 ````
 if [[ -f "$ARG" ]]; then
-	wc -l "$ARG"
-	exit
+    wc -l "$ARG"
+    exit
 else
-	echo "$ARG must be a file"
-	exit 1
+    echo "$ARG must be a file"
+    exit 1
 fi
 ````
 
@@ -243,7 +243,7 @@ The first argument to your script is in `$1`, the second in `$2`, and so on. The
 ````
 if [[ $# -eq 0 ]]; then
     echo "Usage: foo.sh ARG"
-	exit 1
+    exit 1
 fi
 ````
 
@@ -273,7 +273,7 @@ It's common to use a `while` loop to `read` a file, line-by-line, into some `VAR
 
 ````
 while read -r LINE; do
-	echo "$LINE"
+    echo "$LINE"
 done < "$FILE"
 ````
 
@@ -284,8 +284,8 @@ It's common to use the variable `i` (for "integer" maybe?) as a temporary counte
 ````
 i=0
 while read -r LINE; do
-	i=$((i+1))
-	echo $i "$LINE"
+    i=$((i+1))
+    echo $i "$LINE"
 done < "$FILE"
 ````
 
@@ -298,8 +298,8 @@ i=0
 while read -r LINE; do
     i=$((i+1))
     if [[ $(expr $i % 2) -eq 0 ]]; then
-		continue
-	else:
+        continue
+    else:
         echo "$i $LINE"
     fi
 done < "$FILE"
@@ -310,11 +310,11 @@ Use `break` to leave a loop. This will print the first 10 lines of a file:
 ````
 i=0
 while read -r LINE; do
-	echo "$LINE"
-	i=$((i+1))
-	if [[ $i -eq 10 ]]; then
-		break
-	fi
+    echo "$LINE"
+    i=$((i+1))
+    if [[ $i -eq 10 ]]; then
+        break
+    fi
 done < "$FILE"
 ````
 
@@ -339,8 +339,8 @@ LINES=$(grep foo bar.txt)
 NUM_LINES=$(wc -l "$FILE" | awk '{print $1}')
 
 if [[ $NUM_LINES -lt 1 ]]; then
-	echo "There is noting in $FILE"
-	exit 1
+    echo "There is noting in $FILE"
+    exit 1
 fi
 ````
 
@@ -406,19 +406,20 @@ Bash doesn't do lists (many items in a series) very well, so I usually put lists
 
 ````
 FILES=$(mktemp)
-find "$DIR" -type f -name \*.fa[st][aq] > "$FILES"
+find "$DIR" -type f -name \*.f[aq] > "$FILES"
 NUM_FILES=$(wc -l "$FILES" | awk '{print $1}')
 
 if [[ $NUM_FILES -lt 1 ]]; then
-	echo "No usable files in $DIR"
-	exit 1
+    echo "No usable files in $DIR"
+    exit 1
 fi
 
 echo "Found $NUM_FILES in $DIR"
 
 i=0
 while read -r FILENAME; do 
-	BASENAME=$(basename "$FILENAME")
+    i=$((i+1))
+    BASENAME=$(basename "$FILENAME")
     printf "%3d: %s\n" $i "$FILENAME"
 done < "$FILES"
 ````
@@ -1052,57 +1053,57 @@ Some may have values, some may be flags, and you can easily provide good default
 
 ```
 $ cat -n named.sh
-     1	#!/usr/bin/env ash
-     2	
-     3	set -u
-     4	
-     5	GREETING=""
-     6	NAME="Stranger"
-     7	EXCITED=0
-     8	
-     9	function USAGE() {
-    10	    printf "Usage:\n  %s -g GREETING [-e] [-n NAME]\n\n" $(basename $0)
-    11	    echo "Required arguments:"
-    12	    echo " -g GREETING"
-    13	    echo
-    14	    echo "Options:"
-    15	    echo " -n NAME ($NAME)"
-    16	    echo " -e Print exclamation mark (default yes)"
-    17	    echo 
-    18	    exit ${1:-0}
-    19	}
-    20	
-    21	[[ $# -eq 0 ]] && USAGE 1
-    22	
-    23	while getopts :g:n:eh OPT; do
-    24	  case $OPT in
-    25	    h)
-    26	      USAGE
-    27	      ;;
-    28	    e)
-    29	      EXCITED=1
-    30	      ;;
-    31	    g)
-    32	      GREETING="$OPTARG"
-    33	      ;;
-    34	    n)
-    35	      NAME="$OPTARG"
-    36	      ;;
-    37	    :)
-    38	      echo "Error: Option -$OPTARG requires an argument."
-    39	      exit 1
-    40	      ;;
-    41	    \?)
-    42	      echo "Error: Invalid option: -${OPTARG:-""}"
-    43	      exit 1
-    44	  esac
-    45	done
-    46	
-    47	[[ -z "$GREETING" ]] && USAGE 1
-    48	PUNCTUATION="."
-    49	[[ $EXCITED -ne 0 ]] && PUNCTUATION="!"
-    50	
-    51	echo "$GREETING, $NAME$PUNCTUATION"
+     1    #!/usr/bin/env ash
+     2    
+     3    set -u
+     4    
+     5    GREETING=""
+     6    NAME="Stranger"
+     7    EXCITED=0
+     8    
+     9    function USAGE() {
+    10        printf "Usage:\n  %s -g GREETING [-e] [-n NAME]\n\n" $(basename $0)
+    11        echo "Required arguments:"
+    12        echo " -g GREETING"
+    13        echo
+    14        echo "Options:"
+    15        echo " -n NAME ($NAME)"
+    16        echo " -e Print exclamation mark (default yes)"
+    17        echo 
+    18        exit ${1:-0}
+    19    }
+    20    
+    21    [[ $# -eq 0 ]] && USAGE 1
+    22    
+    23    while getopts :g:n:eh OPT; do
+    24      case $OPT in
+    25        h)
+    26          USAGE
+    27          ;;
+    28        e)
+    29          EXCITED=1
+    30          ;;
+    31        g)
+    32          GREETING="$OPTARG"
+    33          ;;
+    34        n)
+    35          NAME="$OPTARG"
+    36          ;;
+    37        :)
+    38          echo "Error: Option -$OPTARG requires an argument."
+    39          exit 1
+    40          ;;
+    41        \?)
+    42          echo "Error: Invalid option: -${OPTARG:-""}"
+    43          exit 1
+    44      esac
+    45    done
+    46    
+    47    [[ -z "$GREETING" ]] && USAGE 1
+    48    PUNCTUATION="."
+    49    [[ $EXCITED -ne 0 ]] && PUNCTUATION="!"
+    50    
+    51    echo "$GREETING, $NAME$PUNCTUATION"
 
 ```
 
@@ -1150,13 +1151,13 @@ The last way I'll show you to get data into your program is to read a configurat
 
 ```
 $ cat -n config1.sh
-     1	export NAME="Merry Boy"
-     2	export GREETING="Good morning"
+     1    export NAME="Merry Boy"
+     2    export GREETING="Good morning"
 $ cat -n read-config.sh
-     1	#!/usr/bin/env bash
+     1    #!/usr/bin/env bash
      2
-     3	source config1.sh
-     4	echo "$GREETING, $NAME!"
+     3    source config1.sh
+     4    echo "$GREETING, $NAME!"
 $ ./read-config.sh
 Good morning, Merry Boy!
 ```
@@ -1165,21 +1166,21 @@ To make this more flexible, let's pass the config file as an argument:
 
 ```
 $ cat -n read-config2.sh
-     1	#!/usr/bin/env bash
+     1    #!/usr/bin/env bash
      2
-     3	CONFIG=${1:-config1.sh}
-     4	if [[ ! -f "$CONFIG" ]]; then
-     5	    echo "Bad config \"$CONFIG\""
-     6	    exit 1
-     7	fi
+     3    CONFIG=${1:-config1.sh}
+     4    if [[ ! -f "$CONFIG" ]]; then
+     5        echo "Bad config \"$CONFIG\""
+     6        exit 1
+     7    fi
      8
-     9	source $CONFIG
-    10	echo "$GREETING, $NAME!"
+     9    source $CONFIG
+    10    echo "$GREETING, $NAME!"
 $ ./read-config2.sh
 Good morning, Merry Boy!
 $ cat -n config2.sh
-     1	export NAME="François"
-     2	export GREETING="Salut"
+     1    export NAME="François"
+     2    export GREETING="Salut"
 $ ./read-config2.sh config2.sh
 Salut, François!
 $ ./read-config2.sh foo
