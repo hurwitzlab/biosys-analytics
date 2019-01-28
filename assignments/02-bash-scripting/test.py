@@ -24,20 +24,32 @@ def test_exists():
         assert os.path.exists(script)
 
 
-def test_usage():
-    """usage"""
-    for script in [cat_n, head]:
-        (retval, out) = getstatusoutput(script)
-        assert retval > 0
-        assert re.match("usage", out, re.IGNORECASE)
+def test_usage_catn():
+    """usage catn"""
+    (retval, out) = getstatusoutput(cat_n)
+    assert retval > 0
+    assert re.match("usage", out, re.IGNORECASE)
 
 
-def test_bad_input():
-    """bad input"""
-    for script in [cat_n, head]:
-        (retval, out) = getstatusoutput('{} {}'.format(script, 'foo'))
-        assert retval > 0
-        assert out == 'foo is not a file'
+def test_usage_head():
+    """usage head"""
+    (retval, out) = getstatusoutput(head)
+    assert retval > 0
+    assert re.match("usage", out, re.IGNORECASE)
+
+
+def test_bad_input_catn():
+    """bad input catn"""
+    (retval, out) = getstatusoutput('{} {}'.format(cat_n, 'foo'))
+    assert retval > 0
+    assert out == 'foo is not a file'
+
+
+def test_bad_input_head():
+    """bad input catn"""
+    (retval, out) = getstatusoutput('{} {}'.format(head, 'foo'))
+    assert retval > 0
+    assert out == 'foo is not a file'
 
 
 def test_catn_run():
