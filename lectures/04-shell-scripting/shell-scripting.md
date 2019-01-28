@@ -273,7 +273,7 @@ It's common to use a `while` loop to `read` a file, line-by-line, into some `VAR
 
 ````
 while read -r LINE; do
-	echo $LINE
+	echo "$LINE"
 done < "$FILE"
 ````
 
@@ -285,7 +285,7 @@ It's common to use the variable `i` (for "integer" maybe?) as a temporary counte
 i=0
 while read -r LINE; do
 	i=$((i+1))
-	echo $i $LINE
+	echo $i "$LINE"
 done < "$FILE"
 ````
 
@@ -310,7 +310,7 @@ Use `break` to leave a loop. This will print the first 10 lines of a file:
 ````
 i=0
 while read -r LINE; do
-	echo $LINE
+	echo "$LINE"
 	i=$((i+1))
 	if [[ $i -eq 10 ]]; then
 		break
