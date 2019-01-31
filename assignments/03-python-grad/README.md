@@ -7,7 +7,6 @@ Write a Python program that will create a square grid from the argument given on
 * The number provided must be in the range of 2 to 9 (inclusive). If it is not, print "NUM (<the number>) must be between 1 and 9" and exit *with an error code*.
 * You will square the given number to create a grid (so think of the number as how many rows and columns).
 * Your grids will look like the below. 
-* All tests must pass to receive full marks.
 
 Sample behavior:
 
