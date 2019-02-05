@@ -36,10 +36,10 @@ def test_bad_number_head():
     """bad number catn"""
     (rv1, out1) = getstatusoutput('{} {} {}'.format(head, sonnet, '-1'))
     assert rv1 > 0
-    assert out1 == 'lines (-1) must be a postive number'
+    assert out1 == 'lines (-1) must be a positive number'
 
     (rv2, out2) = getstatusoutput('{} {} {}'.format(head, issa, '0'))
-    assert out2 == 'lines (0) must be a postive number'
+    assert out2 == 'lines (0) must be a positive number'
 
 
 def test_bad_input_head():
