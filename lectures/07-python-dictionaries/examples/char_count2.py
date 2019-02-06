@@ -26,12 +26,14 @@ def get_args():
         help='Sort by character',
         dest='charsort',
         action='store_true')
+
     parser.add_argument(
         '-n',
         '--numsort',
         help='Sort by number',
         dest='numsort',
         action='store_true')
+
     parser.add_argument(
         '-r',
         '--reverse',

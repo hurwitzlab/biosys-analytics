@@ -716,77 +716,79 @@ $ cat -n char_count2.py
     26	        help='Sort by character',
     27	        dest='charsort',
     28	        action='store_true')
-    29	    parser.add_argument(
-    30	        '-n',
-    31	        '--numsort',
-    32	        help='Sort by number',
-    33	        dest='numsort',
-    34	        action='store_true')
-    35	    parser.add_argument(
-    36	        '-r',
-    37	        '--reverse',
-    38	        help='Sort in reverse order',
-    39	        dest='reverse',
-    40	        action='store_true')
-    41
-    42	    return parser.parse_args()
+    29
+    30	    parser.add_argument(
+    31	        '-n',
+    32	        '--numsort',
+    33	        help='Sort by number',
+    34	        dest='numsort',
+    35	        action='store_true')
+    36
+    37	    parser.add_argument(
+    38	        '-r',
+    39	        '--reverse',
+    40	        help='Sort in reverse order',
+    41	        dest='reverse',
+    42	        action='store_true')
     43
-    44
-    45	# --------------------------------------------------
-    46	def warn(msg):
-    47	    """Print a message to STDERR"""
-    48	    print(msg, file=sys.stderr)
-    49
-    50
-    51	# --------------------------------------------------
-    52	def die(msg='Something bad happened'):
-    53	    """warn() and exit with error"""
-    54	    warn(msg)
-    55	    sys.exit(1)
-    56
-    57
-    58	# --------------------------------------------------
-    59	def main():
-    60	    """Make a jazz noise here"""
-    61	    args = get_args()
-    62	    input_arg = args.input
-    63	    charsort = args.charsort
-    64	    numsort = args.numsort
-    65	    revsort = args.reverse
-    66
-    67	    if charsort and numsort:
-    68	        die('Please choose one of --charsort or --numsort')
-    69
-    70	    if not charsort and not numsort:
-    71	        charsort = True
-    72
-    73	    text = ''
-    74	    if os.path.isfile(input_arg):
-    75	        text = ''.join(open(input_arg).read().splitlines())
-    76	    else:
-    77	        text = input_arg
-    78
-    79	    count = Counter(text.lower())
+    44	    return parser.parse_args()
+    45
+    46
+    47	# --------------------------------------------------
+    48	def warn(msg):
+    49	    """Print a message to STDERR"""
+    50	    print(msg, file=sys.stderr)
+    51
+    52
+    53	# --------------------------------------------------
+    54	def die(msg='Something bad happened'):
+    55	    """warn() and exit with error"""
+    56	    warn(msg)
+    57	    sys.exit(1)
+    58
+    59
+    60	# --------------------------------------------------
+    61	def main():
+    62	    """Make a jazz noise here"""
+    63	    args = get_args()
+    64	    input_arg = args.input
+    65	    charsort = args.charsort
+    66	    numsort = args.numsort
+    67	    revsort = args.reverse
+    68
+    69	    if charsort and numsort:
+    70	        die('Please choose one of --charsort or --numsort')
+    71
+    72	    if not charsort and not numsort:
+    73	        charsort = True
+    74
+    75	    text = ''
+    76	    if os.path.isfile(input_arg):
+    77	        text = ''.join(open(input_arg).read().splitlines())
+    78	    else:
+    79	        text = input_arg
     80
-    81	    if charsort:
-    82	        letters = sorted(count.keys())
-    83	        if revsort:
-    84	            letters.reverse()
-    85
-    86	        for letter in letters:
-    87	            print('{} {:5}'.format(letter, count[letter]))
-    88	    else:
-    89	        pairs = sorted([(x[1], x[0]) for x in count.items()])
-    90	        if revsort:
-    91	            pairs.reverse()
-    92
-    93	        for n, char in pairs:
-    94	            print('{} {:5}'.format(char, n))
-    95
-    96
-    97	# --------------------------------------------------
-    98	if __name__ == '__main__':
-    99	    main()
+    81	    count = Counter(text.lower())
+    82
+    83	    if charsort:
+    84	        letters = sorted(count.keys())
+    85	        if revsort:
+    86	            letters.reverse()
+    87
+    88	        for letter in letters:
+    89	            print('{} {:5}'.format(letter, count[letter]))
+    90	    else:
+    91	        pairs = sorted([(x[1], x[0]) for x in count.items()])
+    92	        if revsort:
+    93	            pairs.reverse()
+    94
+    95	        for n, char in pairs:
+    96	            print('{} {:5}'.format(char, n))
+    97
+    98
+    99	# --------------------------------------------------
+   100	if __name__ == '__main__':
+   101	    main()
 ```
 
 # Acronym Finder
