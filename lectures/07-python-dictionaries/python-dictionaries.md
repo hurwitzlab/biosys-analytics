@@ -688,69 +688,105 @@ Finally, I'll show you a version of the character counter that takes some other 
 
 ```
 $ cat -n char_count2.py
-     1    #!/usr/bin/env python3
-     2    """Character counter"""
-     3
-     4    import argparse
-     5    import os
-     6    import sys
-     7    from collections import Counter
-     8
-     9    # --------------------------------------------------
-    10    def get_args():
-    11        """get args"""
-    12        parser = argparse.ArgumentParser(description='Argparse Python script')
-    13        parser.add_argument('arg', help='File/string to count', type=str)
-    14        parser.add_argument('-c', '--charsort', help='Sort by character',
-    15                            dest='charsort', action='store_true')
-    16        parser.add_argument('-n', '--numsort', help='Sort by number',
-    17                            dest='numsort', action='store_true')
-    18        parser.add_argument('-r', '--reverse', help='Sort in reverse order',
-    19                            dest='reverse', action='store_true')
-    20        return parser.parse_args()
-    21
-    22    # --------------------------------------------------
-    23    def main():
-    24        """main"""
-    25        args = get_args()
-    26        arg = args.arg
-    27        charsort = args.charsort
-    28        numsort = args.numsort
-    29        revsort = args.reverse
-    30
-    31        if charsort and numsort:
-    32            print('Please choose one of --charsort or --numsort')
-    33            sys.exit(1)
-    34
-    35        if not charsort and not numsort:
-    36            charsort = True
-    37
-    38        text = ''
-    39        if os.path.isfile(arg):
-    40            text = ''.join(open(arg).read().splitlines())
-    41        else:
-    42            text = arg
+     1	#!/usr/bin/env python3
+     2	"""
+     3	Author : Ken Youens-Clark <kyclark@email.arizona.edu>
+     4	Date   : 2019-02-06
+     5	Purpose: Character Counter
+     6	"""
+     7
+     8	import argparse
+     9	import os
+    10	import sys
+    11	from collections import Counter
+    12
+    13
+    14	# --------------------------------------------------
+    15	def get_args():
+    16	    """get command-line arguments"""
+    17	    parser = argparse.ArgumentParser(
+    18	        description='Character counter',
+    19	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    20
+    21	    parser.add_argument('input', help='Filename or string to count', type=str)
+    22
+    23	    parser.add_argument(
+    24	        '-c',
+    25	        '--charsort',
+    26	        help='Sort by character',
+    27	        dest='charsort',
+    28	        action='store_true')
+    29	    parser.add_argument(
+    30	        '-n',
+    31	        '--numsort',
+    32	        help='Sort by number',
+    33	        dest='numsort',
+    34	        action='store_true')
+    35	    parser.add_argument(
+    36	        '-r',
+    37	        '--reverse',
+    38	        help='Sort in reverse order',
+    39	        dest='reverse',
+    40	        action='store_true')
+    41
+    42	    return parser.parse_args()
     43
-    44        count = Counter(text.lower())
-    45
-    46        if charsort:
-    47            letters = sorted(count.keys())
-    48            if revsort:
-    49                letters.reverse()
+    44
+    45	# --------------------------------------------------
+    46	def warn(msg):
+    47	    """Print a message to STDERR"""
+    48	    print(msg, file=sys.stderr)
+    49
     50
-    51            for letter in letters:
-    52                print('{} {:5}'.format(letter, count[letter]))
-    53        else:
-    54            pairs = sorted([(x[1], x[0]) for x in count.items()])
-    55            if revsort:
-    56                pairs.reverse()
+    51	# --------------------------------------------------
+    52	def die(msg='Something bad happened'):
+    53	    """warn() and exit with error"""
+    54	    warn(msg)
+    55	    sys.exit(1)
+    56
     57
-    58            for n, char in pairs:
-    59                print('{} {:5}'.format(char, n))
-    60
-    61    # --------------------------------------------------
-    62    if __name__ == '__main__':
-    63        main()
+    58	# --------------------------------------------------
+    59	def main():
+    60	    """Make a jazz noise here"""
+    61	    args = get_args()
+    62	    input_arg = args.input
+    63	    charsort = args.charsort
+    64	    numsort = args.numsort
+    65	    revsort = args.reverse
+    66
+    67	    if charsort and numsort:
+    68	        die('Please choose one of --charsort or --numsort')
+    69
+    70	    if not charsort and not numsort:
+    71	        charsort = True
+    72
+    73	    text = ''
+    74	    if os.path.isfile(input_arg):
+    75	        text = ''.join(open(input_arg).read().splitlines())
+    76	    else:
+    77	        text = input_arg
+    78
+    79	    count = Counter(text.lower())
+    80
+    81	    if charsort:
+    82	        letters = sorted(count.keys())
+    83	        if revsort:
+    84	            letters.reverse()
+    85
+    86	        for letter in letters:
+    87	            print('{} {:5}'.format(letter, count[letter]))
+    88	    else:
+    89	        pairs = sorted([(x[1], x[0]) for x in count.items()])
+    90	        if revsort:
+    91	            pairs.reverse()
+    92
+    93	        for n, char in pairs:
+    94	            print('{} {:5}'.format(char, n))
+    95
+    96
+    97	# --------------------------------------------------
+    98	if __name__ == '__main__':
+    99	    main()
 ```
 
 # Acronym Finder
