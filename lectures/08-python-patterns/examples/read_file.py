@@ -7,7 +7,7 @@ import sys
 args = sys.argv[1:]
 
 if len(args) != 1:
-    print('Usage: {} ARG'.format(os.path.basename(sys.argv[0])))
+    print('Usage: {} FILE'.format(os.path.basename(sys.argv[0])))
     sys.exit(1)
 
 filename = args[0]
