@@ -17,4 +17,4 @@ if not os.path.isdir(dirname):
     sys.exit(1)
 
 for entry in os.listdir(dirname):
-    print(os.path.abspath(entry))
+    print(entry)
