@@ -31,7 +31,7 @@ Tic-Tac-Toe board
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s str, --state str   Board state (default: ---------)
+  -s str, --state str   Board state (default: .........)
   -p str, --player str  Player (default: )
   -c str, --cell str    Cell to apply -p (default: )
 ````
