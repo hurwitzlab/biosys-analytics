@@ -121,6 +121,49 @@ To an admiring Bog!
 Emily Dickinson
 ````
 
+## Write data to a file
+
+To write a file, you need to `open` some filename with a second argument of the "mode" where
+
+* `r`: read (default)
+* `w`: write
+* `t`: text mode (default)
+* `b`: binary
+
+You can combine the flags so that `wt` means "write a text file" which is what is done here.
+
+If you `open` a file for writing and the file already exists, it will be overwritten, so it may behoove you to check if the file exists first!
+
+````
+$ cat -n write_file.py
+     1	#!/usr/bin/env python3
+     2
+     3	import os
+     4	import sys
+     5
+     6
+     7	args = sys.argv[1:]
+     8
+     9	if len(args) < 1:
+    10	    print('Usage: {} ARG1 [ARG2...]'.format(os.path.basename(sys.argv[0])))
+    11	    sys.exit(1)
+    12
+    13	outfile = 'out.txt'
+    14	out_fh = open(outfile, 'wt')
+    15
+    16	for arg in args:
+    17	    out_fh.write(arg + '\n')
+    18
+    19	out_fh.close()
+    20	print('Done, see "{}"'.format(outfile))
+$ ./write_file.py foo bar baz
+Done, see "out.txt"
+$ cat out.txt
+foo
+bar
+baz
+````
+
 ## Test if an argument is a directory and list the contents
 
 ````
