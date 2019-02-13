@@ -53,9 +53,9 @@ Die if given a bad `--state` (too short, not made entirely of "-XO"). Note the f
 
 ````
 $ ./tictactoe.py -s abcdefghi
-State "abcdefghi" must be 9 characters of only -, X, O
+State "abcdefghi" must be 9 characters of only ., X, O
 $ ./tictactoe.py --state XXO
-State "XXO" must be 9 characters of only -, X, O
+State "XXO" must be 9 characters of only ., X, O
 ````
 
 Die on invalid player:
