@@ -43,7 +43,7 @@ def test_no_input():
 # --------------------------------------------------
 def test_bad_state():
     """dies on bad state"""
-    tmpl = 'Invalid state "{}", must be 9 characters of only -, X, O'
+    tmpl = 'Invalid state "{}", must be 9 characters of only ., X, O'
     for bad in ['ABC', '...XXX', 'XXXOOOXX']:
         rv, out = getstatusoutput('{} --state {}'.format(ttt, bad))
         assert rv > 0

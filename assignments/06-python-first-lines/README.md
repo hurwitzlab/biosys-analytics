@@ -3,9 +3,9 @@
 Create a program called "first_lines.py" that prints the first line of the contents of each file in a directory along with the source file name, e.g., like the index of a collection of poems. The program must do the following:
 
 * Print a "usage" statement if given exactly no arguments and exit *with an error*
-* Accept one or more positional arguments which should be directory names
+* Accept one or more positional arguments which should be directory names (hint: use `nargs='+'` to `argparse` to get a list instead of a single value)
 * Iterate over the arguments; if an argument is not a directory, print '"<arg>" is not a directory' *to STDERR* and skip to the next
-* Print the directory name, then show a list of first lines of the files contained in that directory, ellipses, then the file name
+* Print the directory name, then show a **sorted** list of first lines of the files contained in that directory, ellipses, then the file name
 
 Expected behavior:
 
