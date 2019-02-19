@@ -168,7 +168,7 @@ abundance      : 0.0
 
 Let's write a program that shows a table of the number of records for each "taxID":
 
-```
+````
 $ cat -n read_count_by_taxid.py
      1    #!/usr/bin/env python3
      2    """Counts by taxID"""
@@ -201,7 +201,7 @@ $ cat -n read_count_by_taxid.py
     29    print('\t'.join(['count', 'taxID']))
     30    for taxID, count in counts.items():
     31        print('\t'.join([str(count), taxID]))
-```
+````
 
 As always, it prints a "usage" statement when run with no arguments.  It also uses the `os.path.splitext` function to get the file extension and make sure that it is ".sum."  Finally, if the input looks OK, then it uses the `csv.DictReader` module to parse each record of the file into a dictionary:
 
@@ -219,7 +219,7 @@ count	taxID
 
 That's a start, but most people would rather see the a species name rather than the NCBI taxonomy ID, so we'll need to go look up  the taxIDs in the ".tsv" file:
 
-```
+````
 $ cat -n read_count_by_tax_name.py
      1    #!/usr/bin/env python3
      2    """Counts by tax name"""
@@ -269,7 +269,7 @@ count    taxID
 6432    Synechococcus sp. JA-3-3Ab
 80    Synechococcus sp. JA-2-3B'a(2-13)
 19    synthetic construct
-```
+````
 
 ## tabchk
 
@@ -291,7 +291,7 @@ MGYA00005135,2.0,ERS493705,MGYS00000410,metagenomic,,ERR599152,
 
 I'd rather see it formatted vertically:
 
-```
+````
 $ tabchk.py oceanic_mesopelagic_zone_biome.csv
 // ****** Record 1 ****** //
 Analysis             : MGYA00005220
@@ -302,7 +302,7 @@ Experiment type      : metagenomic
 Assembly             :
 ENA run              : ERR599044
 ENA WGS sequence set :
-```
+````
 
 Sometimes I have many more fields and lots of missing values, so I can use the `-d` flag to the program indicates to show a "dense" matrix, i.e., leave out the empty fields:
 
@@ -449,15 +449,15 @@ Here is the `tabchk.py` program I wrote to do that. The program is generally use
    127	# --------------------------------------------------
    128	if __name__ == '__main__':
    129	    main()
-```
+````
 
 ## FASTA
 
 Now let's finally get into parsing good, old FASTA files.  We're going to need to install the BioPython ([http://biopython.org/) module to get a FASTA parser.  This should work for you:
 
-```
+````
 $ python3 -m pip install biopython
-```
+````
 
 For this exercise, I'll use a few reads from the Global Ocean Sampling Expedition (https://imicrobe.us/#/samples/578). You can download the full file with this command:
 
@@ -484,12 +484,12 @@ We **could** write our own FASTA parser, and we would definitely learn much alon
 
 There is a useful program called `seqmagick` that will give you information like the following:
 
-```
+````
 $ seqmagick info *.fa
 name              alignment    min_len   max_len   avg_len  num_seqs
 CAM_SMPL_GS108.fa FALSE             47       594    369.65       499
 CAM_SMPL_GS112.fa FALSE             50       624    383.50       500
-```
+````
 
 You can install it like so:
 
@@ -499,12 +499,12 @@ $ python -m pip install seqmagick
 
 Let's write a toy program to mimic part of the output. We'll skip the "alignment" and just do min/max/avg lengths, and the number of sequences.  You can pretty much copy and paste the example code from http://biopython.org/wiki/SeqIO. Here is the output from our script, `seqmagique.py`:
 
-```
+````
 $ ./seqmagique.py *.fa
 name              min_len    max_len    avg_len    num_seqs
 CAM_SMPL_GS108.fa         47        594 369.45            500
 CAM_SMPL_GS112.fa         50        624 383.50            500
-```
+````
 
 The code to produce this builds on our earlier skills of lists and dictionaries as we will parse each file and save a dictionary of stats into a list, then we will iterate over that list at the end to show the output.
 
@@ -674,7 +674,7 @@ $ cat -n subset_fastx.py
 
 I seem to have implemented my own FASTA splitter a few times in as many languages.  Here is one that writes a maximum number of sequences to each output file.  It would not be hard to instead write a maximum number of bytes, but, for the short reads I usually handle, this works fine.  Again I will use the BioPython `SeqIO` module to parse the FASTA files
 
-```
+````
 $ cat -n fa_split.py
      1	#!/usr/bin/env python3
      2	"""
@@ -821,11 +821,11 @@ $ cat -n fa_split.py
    143	# --------------------------------------------------
    144	if __name__ == '__main__':
    145	    main()
-```
+````
 
 You can run this on the FASTA files in the `examples` directory to split them into files of 50 sequences each:
 
-```
+````
 $ ./fa_split.py *.fa
   1: CAM_SMPL_GS108.fa
   2: CAM_SMPL_GS112.fa
@@ -852,11 +852,11 @@ total 1088
 -rw-r--r--  1 kyclark  staff    29K Feb 19 15:41 CAM_SMPL_GS112.0008.fa
 -rw-r--r--  1 kyclark  staff    27K Feb 19 15:41 CAM_SMPL_GS112.0009.fa
 -rw-r--r--  1 kyclark  staff    16K Feb 19 15:41 CAM_SMPL_GS112.0010.fa
-```
+````
 
 We can verify that things worked:
 
-```
+````
 $ for file in fasplit/*; do echo -n $file && grep '^>' $file | wc -l; done
 fasplit/CAM_SMPL_GS108.0001.fa      50
 fasplit/CAM_SMPL_GS108.0002.fa      50
@@ -878,13 +878,13 @@ fasplit/CAM_SMPL_GS112.0007.fa      50
 fasplit/CAM_SMPL_GS112.0008.fa      50
 fasplit/CAM_SMPL_GS112.0009.fa      50
 fasplit/CAM_SMPL_GS112.0010.fa      50
-```
+````
 
 ## GFF
 
 Two of the most common output files in bioinformatics, GFF (General Feature Format) and BLAST's tab/CSV files do not include headers, so it's up to you to merge in the headers.  Additionally, some of the lines may be comments (they start with `#` just like bash and Python), so you should skip those.  Further, the last field in GFF is basically a dumping ground for whatever else the data provider felt like putting there.  Usually it's a bunch of "key=value" pairs, but there's no guarantee.  Let's take a look at parsing the GFF output from Prodigal:
 
-```
+````
 $ cat -n parse_prodigal_gff.py
      1	#!/usr/bin/env python3
      2	"""
@@ -966,7 +966,7 @@ $ cat -n parse_prodigal_gff.py
     78	# --------------------------------------------------
     79	if __name__ == '__main__':
     80	    main()
-```
+````
 
 
 
