@@ -453,7 +453,7 @@ Here is the `tabchk.py` program I wrote to do that. The program is generally use
 
 ## FASTA
 
-Now let's finally get into parsing good, old FASTA files.  We're going to need to install the BioPython ([http://biopython.org/) module to get a FASTA parser.  This should work for you:
+Now let's finally get into parsing good, old FASTA files.  We're going to need to install the BioPython (http://biopython.org/) module to get a FASTA parser.  This should work for you:
 
 ````
 $ python3 -m pip install biopython
