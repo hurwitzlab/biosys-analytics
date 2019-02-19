@@ -136,7 +136,7 @@ More generally, these are values that are separated by some marker. Commas are t
 
 Delimited text files are a standard way to distribute non/semi-hierarchical data -- e.g., records that can be represented each on one line.  (When you get into data that have relationships, e.g., parents/children, then structures like XML and JSON are more appropriate, which is not to say that people haven't sorely abused this venerable format, e.g., GFF3.)  Let's first take a look at the `csv` module in Python to parse the output from Centrifuge (http://www.ccb.jhu.edu/software/centrifuge/). Despite the name, this module parses any line-oriented, delimited text, not just CSV files.
 
-For this, we'll use some data from a study from Yellowstone National Park (https://www.imicrobe.us/#/samples;/1378).  For each input file, Centrifuge creates two tab-delimited output files: 
+For this, we'll use some data from a study from Yellowstone National Park (https://www.imicrobe.us/#/samples/1378).  For each input file, Centrifuge creates two tab-delimited output files: 
 
 1. a file ("YELLOWSTONE_SMPL_20723.sum") showing the taxonomy ID for each read it was able to classify and 
 2. a file ("YELLOWSTONE_SMPL_20723.tsv") of the complete taxonomy information for each taxonomy ID.  
