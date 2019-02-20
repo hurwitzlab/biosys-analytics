@@ -271,7 +271,7 @@ count    taxID
 19    synthetic construct
 ````
 
-## tabchk
+## tabchk.py
 
 A huge chunk of my time is spent doing ETL operations -- extract, transform, load -- meaning someone sends me data (Excel or delimited-text, JSON/XML), and I put it into some sort of database. I usually want to inspect the data to see what it looks like, and it's hard to see the data when it's in columnar format like this:
 
@@ -451,6 +451,209 @@ Here is the `tabchk.py` program I wrote to do that. The program is generally use
    129	    main()
 ````
 
+## tabget.py
+
+Here's a program that extracts columns from a delimited text file using the column names instead of the number (yes, I know we could just use `awk`):
+
+````
+$ cat -n tabget.py
+     1	#!/usr/bin/env python3
+     2	"""
+     3	Author : Ken Youens-Clark <kyclark@gmail.com>
+     4	Date   : 2018-11-16
+     5	Purpose: Get fields from a tab/csv file
+     6	"""
+     7
+     8	import argparse
+     9	import csv
+    10	import os
+    11	import re
+    12	import sys
+    13
+    14
+    15	# --------------------------------------------------
+    16	def get_args():
+    17	    """get command-line arguments"""
+    18	    parser = argparse.ArgumentParser(
+    19	        description='Argparse Python script',
+    20	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    21
+    22	    parser.add_argument(
+    23	        'file', nargs='+', metavar='FILE', help='Input file(s)')
+    24
+    25	    parser.add_argument(
+    26	        '-d',
+    27	        '--delimiter',
+    28	        help='Field delimiter',
+    29	        metavar='str',
+    30	        type=str,
+    31	        default='')
+    32
+    33	    parser.add_argument(
+    34	        '-f',
+    35	        '--field',
+    36	        help='Name of field(s)',
+    37	        metavar='str',
+    38	        type=str,
+    39	        default='')
+    40
+    41	    return parser.parse_args()
+    42
+    43
+    44	# --------------------------------------------------
+    45	def warn(msg):
+    46	    """Print a message to STDERR"""
+    47	    print(msg, file=sys.stderr)
+    48
+    49
+    50	# --------------------------------------------------
+    51	def die(msg='Something bad happened'):
+    52	    """warn() and exit with error"""
+    53	    warn(msg)
+    54	    sys.exit(1)
+    55
+    56
+    57	# --------------------------------------------------
+    58	def main():
+    59	    """Make a jazz noise here"""
+    60	    args = get_args()
+    61	    files = args.file
+    62	    default_delim = args.delimiter
+    63	    field_names = re.split('\s*,\s*', args.field)
+    64
+    65	    for file in files:
+    66	        with open(file, 'rt') as fh:
+    67	            delim = default_delim
+    68	            if not delim:
+    69	                _, ext = os.path.splitext(file)
+    70	                if ext == '.csv':
+    71	                    delim = ','
+    72	                else:
+    73	                    delim = '\t'
+    74
+    75	            reader = csv.DictReader(fh, delimiter=delim)
+    76
+    77	            print(delim.join(field_names))
+    78
+    79	            for row in reader:
+    80	                flds = list(map(lambda f: row[f], field_names))
+    81	                print(delim.join(flds))
+    82
+    83
+    84	# --------------------------------------------------
+    85	if __name__ == '__main__':
+    86	    main()
+````
+
+## tab2json.py
+
+At some point I must have needed to turn a flat, delimited text file into a hierarchical, JSON structured, but I cannot at this moment remember why. Anyway, here's a program that will do that.
+
+````
+$ cat -n tab2json.py
+     1	#!/usr/bin/env python3
+     2	"""
+     3	Author:  Ken Youens-Clark <kyclark@gmail.com>
+     4	Purpose: Convert a delimited text file to JSON
+     5	"""
+     6
+     7	import argparse
+     8	import csv
+     9	import json
+    10	import os
+    11	import re
+    12	import sys
+    13
+    14
+    15	# --------------------------------------------------
+    16	def get_args():
+    17	    """get args"""
+    18	    parser = argparse.ArgumentParser(
+    19	        description='Argparse Python script',
+    20	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    21
+    22	    parser.add_argument(
+    23	        'tabfile', metavar='str', nargs='+', help='A positional argument')
+    24
+    25	    parser.add_argument(
+    26	        '-s',
+    27	        '--sep',
+    28	        help='Field separator',
+    29	        metavar='str',
+    30	        type=str,
+    31	        default='\t')
+    32
+    33	    parser.add_argument(
+    34	        '-o',
+    35	        '--outdir',
+    36	        help='Output dir',
+    37	        metavar='str',
+    38	        type=str,
+    39	        default='')
+    40
+    41	    parser.add_argument(
+    42	        '-i',
+    43	        '--indent',
+    44	        help='Indent level',
+    45	        metavar='int',
+    46	        type=int,
+    47	        default=2)
+    48
+    49	    parser.add_argument(
+    50	        '-n',
+    51	        '--normalize_headers',
+    52	        help='Normalize headers',
+    53	        action='store_true')
+    54
+    55	    return parser.parse_args()
+    56
+    57
+    58	# --------------------------------------------------
+    59	def main():
+    60	    """main"""
+    61	    args = get_args()
+    62	    indent_level = args.indent
+    63	    out_dir = args.outdir
+    64	    fs = args.sep
+    65	    norm_hdr = args.normalize_headers
+    66	    tabfiles = args.tabfile
+    67
+    68	    if len(tabfiles) < 1:
+    69	        print('No input files')
+    70	        sys.exit(1)
+    71
+    72	    if indent_level < 0:
+    73	        indent_level = 0
+    74
+    75	    if out_dir and not os.path.isdir(out_dir):
+    76	        os.makedirs(out_dir)
+    77
+    78	    for i, tabfile in enumerate(tabfiles, start=1):
+    79	        basename = os.path.basename(tabfile)
+    80	        filename, _ = os.path.splitext(basename)
+    81	        dirname = os.path.dirname(os.path.abspath(tabfile))
+    82	        print('{:3}: {}'.format(i, basename))
+    83	        write_dir = out_dir if out_dir else dirname
+    84	        out_path = os.path.join(write_dir, filename + '.json')
+    85	        out_fh = open(out_path, 'wt')
+    86
+    87	        with open(tabfile) as fh:
+    88	            reader = csv.DictReader(fh, delimiter=fs)
+    89	            if norm_hdr:
+    90	                reader.fieldnames = list(map(normalize, reader.fieldnames))
+    91	            out_fh.write(json.dumps(list(reader), indent=indent_level))
+    92
+    93
+    94	# --------------------------------------------------
+    95	def normalize(hdr):
+    96	    return re.sub(r'[^A-Za-z0-9_]', '', hdr.lower().replace(' ', '_'))
+    97
+    98
+    99	# --------------------------------------------------
+   100	if __name__ == '__main__':
+   101	    main()
+````
+
 ## FASTA
 
 Now let's finally get into parsing good, old FASTA files.  We're going to need to install the BioPython (http://biopython.org/) module to get a FASTA parser.  This should work for you:
@@ -468,9 +671,12 @@ $ iget /iplant/home/shared/imicrobe/projects/26/samples/578/CAM_SMPL_GS108.fa
 Since that file is 725M, I've added a sample to the repo in the `examples` directory.
 
 ````
-$ head -2 CAM_SMPL_GS108.fa
+$ head -5 CAM_SMPL_GS108.fa
 >CAM_READ_0231669761 /library_id="CAM_LIB_GOS108XLRVAL-4F-1-400" /sample_id="CAM_SMPL_GS108" raw_id=SRA_ID=SRR066139.70645 raw_id=FG67BMZ02PUFIF
-ATTTACAATAATTTAATAAAATTAACTAGAAATAAAATATTGTATGAAAATATGTTAAATAATGAAAGTTTTTCAGATCGTTTAATAATATTTTTCTTCCATTTTGCTTTTTTCTAAAATTGTTCAAAAACAAACTTCAAAGGAAAATCTTCAAAATTTACATGATTTTATATTTAAACAAATAGAGTTAAGTATAAGAGAAATTGGATATGGTGATGCTTCAATAAATAAAAAAATGAAAGAGTATGTCAATGTGATGTACGCAATAATTGACAAAGTTGATTCATGGGAAAATCTTGATTTATCTACAAAAACTAAATTCTTTTCTGAATTTATTAATGTCGATAAGGAATCTACATTTTTTGTAAGTTATTTTGATAAATATTCATCATATTTGTTAAAAAACTCTTTTATTTATTTTACAAAAGAG
+ATTTACAATAATTTAATAAAATTAACTAGAAATAAAATATTGTATGAAAATATGTTAAAT
+AATGAAAGTTTTTCAGATCGTTTAATAATATTTTTCTTCCATTTTGCTTTTTTCTAAAAT
+TGTTCAAAAACAAACTTCAAAGGAAAATCTTCAAAATTTACATGATTTTATATTTAAACA
+AATAGAGTTAAGTATAAGAGAAATTGGATATGGTGATGCTTCAATAAATAAAAAAATGAA
 ````
 
 The format of a FASTA file is:
@@ -968,5 +1174,10 @@ $ cat -n parse_prodigal_gff.py
     80	    main()
 ````
 
+## XML
 
+Maybe something with parsing NCBI taxonomy?
 
+## JSON
+
+There's lots of JSON in the world that needs to be parsed.
