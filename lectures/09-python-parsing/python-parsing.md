@@ -442,13 +442,19 @@ Here is the `tabchk.py` program I wrote to do that. The program is generally use
    120	                else:
    121	                    print(show)
    122
-   123	            if i + 1 == limit:
+   123	            if i == limit:
    124	                break
    125
    126
    127	# --------------------------------------------------
    128	if __name__ == '__main__':
    129	    main()
+````
+
+BLAST's tab-delimited output (`-outfmt 6`) does not include headers, so I have this alias:
+
+````
+alias blast6chk='tabchk.py -f "qseqid,sseqid,pident,length,mismatch,gapopen,qstart,qend,sstart,send,evalue,bitscore"'
 ````
 
 ## tabget.py

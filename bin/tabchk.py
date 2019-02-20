@@ -120,7 +120,7 @@ def main():
                 else:
                     print(show)
 
-            if i + 1 == limit:
+            if i == limit:
                 break
 
 
