@@ -827,79 +827,105 @@ FBI =
 Here is the Python for that:
 
 ```
-$ cat -n bacryonym.py
-     1    #!/usr/bin/env python3
-     2    """Make guesses about acronyms"""
+$ cat -n bacronym.py
+     1	#!/usr/bin/env python3
+     2	"""Make guesses about acronyms"""
      3
-     4    import argparse
-     5    import sys
-     6    import os
-     7    import random
-     8    import re
-     9    from collections import defaultdict
+     4	import argparse
+     5	import sys
+     6	import os
+     7	import random
+     8	import re
+     9	from collections import defaultdict
     10
-    11    # --------------------------------------------------
-    12    def main():
-    13        """main"""
-    14        args = get_args()
-    15        acronym = args.acronym
-    16        wordlist = args.wordlist
-    17        limit = args.num
-    18        goodword = r'^[a-z]{2,}$'
-    19        badwords = set(re.split(r'\s*,\s*', args.exclude.lower()))
+    11
+    12	# --------------------------------------------------
+    13	def get_args():
+    14	    """get arguments"""
+    15	    parser = argparse.ArgumentParser(
+    16	        description='Explain acronyms',
+    17	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    18
+    19	    parser.add_argument('acronym', help='Acronym', type=str, metavar='STR')
     20
-    21        if not re.match(goodword, acronym.lower()):
-    22            print('"{}" must be >1 in length, only use letters'.format(acronym))
-    23            sys.exit(1)
-    24
-    25        if not os.path.isfile(wordlist):
-    26            print('"{}" is not a file.'.format(wordlist))
-    27            sys.exit(1)
-    28
-    29        seen = {}
-    30        words_by_letter = defaultdict(list)
-    31        for word in open(wordlist).read().lower().split():
-    32            clean = re.sub('[^a-z]', '', word)
-    33            if re.match(goodword, clean) and clean not in seen and clean not in badwords:
-    34                seen[clean] = 1
-    35                words_by_letter[clean[0]].append(clean)
-    36
-    37        len_acronym = len(acronym)
-    38        definitions = []
-    39        for i in range(0, limit):
-    40            definition = []
-    41            for letter in acronym.lower():
-    42                possible = words_by_letter[letter]
-    43                if len(possible) > 0:
-    44                    definition.append(random.choice(possible).title())
-    45
-    46            if len(definition) == len_acronym:
-    47                definitions.append(' '.join(definition))
-    48
-    49        if len(definitions) > 0:
-    50            print(acronym.upper() + ' =')
-    51            for definition in definitions:
-    52                print(' - ' + definition)
-    53        else:
-    54            print('Sorry I could not find any good definitions')
-    55
-    56    # --------------------------------------------------
-    57    def get_args():
-    58        """get arguments"""
-    59        parser = argparse.ArgumentParser(description='Explain acronyms')
-    60        parser.add_argument('acronym', help='Acronym', type=str, metavar='STR')
-    61        parser.add_argument('-n', '--num', help='Maximum number of definitions',
-    62                            type=int, metavar='NUM', default=5)
-    63        parser.add_argument('-w', '--wordlist', help='Dictionary/word file',
-    64                            type=str, metavar='STR',
-    65                            default='/usr/share/dict/words')
-    66        parser.add_argument('-x', '--exclude', help='List of words to exclude',
-    67                            type=str, metavar='STR', default='a,an,the')
-    68        return parser.parse_args()
+    21	    parser.add_argument(
+    22	        '-n',
+    23	        '--num',
+    24	        help='Maximum number of definitions',
+    25	        type=int,
+    26	        metavar='NUM',
+    27	        default=5)
+    28	    parser.add_argument(
+    29	        '-w',
+    30	        '--wordlist',
+    31	        help='Dictionary/word file',
+    32	        type=str,
+    33	        metavar='STR',
+    34	        default='/usr/share/dict/words')
+    35	    parser.add_argument(
+    36	        '-x',
+    37	        '--exclude',
+    38	        help='List of words to exclude',
+    39	        type=str,
+    40	        metavar='STR',
+    41	        default='a,an,the')
+    42	    return parser.parse_args()
+    43
+    44
+    45	# --------------------------------------------------
+    46	def main():
+    47	    """main"""
+    48	    args = get_args()
+    49	    acronym = args.acronym
+    50	    wordlist = args.wordlist
+    51	    limit = args.num
+    52	    goodword = r'^[a-z]{2,}$'
+    53	    badwords = set(re.split(r'\s*,\s*', args.exclude.lower()))
+    54
+    55	    if not re.match(goodword, acronym.lower()):
+    56	        print('"{}" must be >1 in length, only use letters'.format(acronym))
+    57	        sys.exit(1)
+    58
+    59	    if not os.path.isfile(wordlist):
+    60	        print('"{}" is not a file.'.format(wordlist))
+    61	        sys.exit(1)
+    62
+    63	    seen = set()
+    64	    words_by_letter = defaultdict(list)
+    65	    for word in open(wordlist).read().lower().split():
+    66	        clean = re.sub('[^a-z]', '', word)
+    67	        if not clean:  # nothing left?
+    68	            continue
     69
-    70    # --------------------------------------------------
-    71    if __name__ == '__main__':
-    72        main()
+    70	        if re.match(goodword,
+    71	                    clean) and clean not in seen and clean not in badwords:
+    72	            seen.add(clean)
+    73	            words_by_letter[clean[0]].append(clean)
+    74
+    75	    len_acronym = len(acronym)
+    76	    definitions = []
+    77	    for i in range(0, limit):
+    78	        definition = []
+    79	        for letter in acronym.lower():
+    80	            possible = words_by_letter.get(letter, [])
+    81	            if len(possible) > 0:
+    82	                definition.append(
+    83	                    random.choice(possible).title() if possible else '?')
+    84
+    85	        if len(definition) == len_acronym:
+    86	            definitions.append(' '.join(definition))
+    87
+    88	    if len(definitions) > 0:
+    89	        print(acronym.upper() + ' =')
+    90	        for definition in definitions:
+    91	            print(' - ' + definition)
+    92	    else:
+    93	        print('Sorry I could not find any good definitions')
+    94
+    95
+    96	# --------------------------------------------------
+    97	if __name__ == '__main__':
+    98	    main()
 ```
 
 # Sequence Similarity
