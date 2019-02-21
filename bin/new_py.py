@@ -61,7 +61,7 @@ def main():
 
 
     out_fh = open(out_file, 'w')
-    preamble = PREAMBLE.format(os.getlogin(), str(date.today()))
+    preamble = PREAMBLE.format(os.getenv('USER'), str(date.today()))
     text = ARGPARSE if args.use_argparse else SIMPLE
 
     out_fh.write(preamble)
