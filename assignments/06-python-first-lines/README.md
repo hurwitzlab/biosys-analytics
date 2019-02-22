@@ -6,6 +6,7 @@ Create a program called "first_lines.py" that prints the first line of the conte
 * Accept one or more positional arguments which should be directory names (hint: use `nargs='+'` to `argparse` to get a list instead of a single value)
 * Iterate over the arguments; if an argument is not a directory, print '"<arg>" is not a directory' *to STDERR* and skip to the next
 * Print the directory name, then show a **sorted** list of first lines of the files contained in that directory, ellipses, then the file name
+* Accept a `-w|--width` integer option that is the width of the space to print (default 50)
 
 Expected behavior:
 
