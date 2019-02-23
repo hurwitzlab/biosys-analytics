@@ -112,7 +112,7 @@ Now let's capture the decimal point:
 <_sre.SRE_Match object; span=(0, 3), match='27.'>
 ````
 
-You migth think that's perfect, but the `.` has a special meaning in regex. It means "one of anything", so it matches this, too:
+You might think that's perfect, but the `.` has a special meaning in regex. It means "one of anything", so it matches this, too:
 
 ````
 >>> re.search('\d+.', '27x83387')
@@ -177,79 +177,60 @@ There are many resources you can use to thoroughly learn regular expressions, so
 Here is an example of how you can embed regexes in your Python code. This version can parse all the versions of latitude/longitude shown above:
 
 ````
-$ cat -n ena_re.py
+$ cat -n parse_lat_lon.py
      1	#!/usr/bin/env python3
-     2	"""
-     3	Author : kyclark
-     4	Date   : 2019-02-22
-     5	Purpose: Rock the Casbah
-     6	"""
-     7
-     8	import os
-     9	import re
-    10	import sys
-    11
+     2
+     3	import os
+     4	import re
+     5	import sys
+     6
+     7	args = sys.argv[1:]
+     8
+     9	if len(args) != 1:
+    10	    print('Usage: {} FILE'.format(os.path.basename(sys.argv[0])))
+    11	    sys.exit(1)
     12
-    13	# --------------------------------------------------
-    14	def main():
-    15	    args = sys.argv[1:]
-    16
-    17	    if len(args) != 1:
-    18	        print('Usage: {} FILE'.format(os.path.basename(sys.argv[0])))
-    19	        sys.exit(1)
-    20
-    21	    file = args[0]
-    22
-    23	    float_ = r'[+-]?\d+\.*\d*'
-    24	    line_re = re.compile('^attr\.([^\s]+)\s+:\s+(.+)$')
-    25	    ll1 = re.compile('(' + float_ + ')\s*[,_]\s*(' + float_ + ')')
-    26	    ll2 = re.compile('(' + float_ + ')(?:\s*([NS]))?(?:\s*,)?\s+(' + float_ +
-    27	                     ')(?:\s*([EW])?)')
-    28
-    29	    loc_hms = r"""
-    30	    \d+\.\d+'\d+\.\d+"
-    31	    """.strip()
-    32	    ll3 = re.compile('(' + loc_hms + ')\s+(' + loc_hms + ')')
-    33
-    34	    for line in open(file):
-    35	        match = line_re.search(line)
-    36	        if match:
-    37	            fld, val = match.group(1), match.group(2)
-    38	            print('{} = {}'.format(fld, val))
-    39
-    40	            if fld == 'lat_lon':
-    41	                ll_match1 = ll1.search(val)
-    42	                ll_match2 = ll2.search(val)
-    43	                ll_match3 = ll3.search(val)
+    13	file = args[0]
+    14
+    15	float_ = r'[+-]?\d+\.*\d*'
+    16	ll1 = re.compile('(' + float_ + ')\s*[,_]\s*(' + float_ + ')')
+    17	ll2 = re.compile('(' + float_ + ')(?:\s*([NS]))?(?:\s*,)?\s+(' + float_ +
+    18	                 ')(?:\s*([EW])?)')
+    19	loc_hms = r"""
+    20	\d+\.\d+'\d+\.\d+"
+    21	""".strip()
+    22	ll3 = re.compile('(' + loc_hms + ')\s+(' + loc_hms + ')')
+    23
+    24	for line in open(file):
+    25	    line = line.rstrip()
+    26	    ll_match1 = ll1.search(line)
+    27	    ll_match2 = ll2.search(line)
+    28	    ll_match3 = ll3.search(line)
+    29
+    30	    if ll_match1:
+    31	        lat, lon = ll_match1.group(1), ll_match1.group(2)
+    32	        lat = float(lat)
+    33	        lon = float(lon)
+    34	        print('lat = {}, lon = {}'.format(lat, lon))
+    35	    elif ll_match2:
+    36	        lat, lat_dir, lon, lon_dir = ll_match2.group(
+    37	            1), ll_match2.group(2), ll_match2.group(
+    38	                3), ll_match2.group(4)
+    39	        lat = float(lat)
+    40	        lon = float(lon)
+    41
+    42	        if lat_dir == 'S':
+    43	            lat *= -1
     44
-    45	                if ll_match1:
-    46	                    lat, lon = ll_match1.group(1), ll_match1.group(2)
-    47	                    lat = float(lat)
-    48	                    lon = float(lon)
-    49	                    print('lat = {}, lon = {}'.format(lat, lon))
-    50	                elif ll_match2:
-    51	                    lat, lat_dir, lon, lon_dir = ll_match2.group(
-    52	                        1), ll_match2.group(2), ll_match2.group(
-    53	                            3), ll_match2.group(4)
-    54	                    lat = float(lat)
-    55	                    lon = float(lon)
-    56
-    57	                    if lat_dir == 'S':
-    58	                        lat *= -1
-    59
-    60	                    if lon_dir == 'W':
-    61	                        lon *= -1
-    62	                    print('lat = {}, lon = {}'.format(lat, lon))
-    63	                elif ll_match3:
-    64	                    lat, lon = ll_match3.group(1), ll_match3.group(2)
-    65	                    print('lat = {}, lon = {}'.format(lat, lon))
-    66	                else:
-    67	                    print('No match')
-    68
-    69
-    70	# --------------------------------------------------
-    71	main()
-$ cat re.txt
+    45	        if lon_dir == 'W':
+    46	            lon *= -1
+    47	        print('lat = {}, lon = {}'.format(lat, lon))
+    48	    elif ll_match3:
+    49	        lat, lon = ll_match3.group(1), ll_match3.group(2)
+    50	        print('lat = {}, lon = {}'.format(lat, lon))
+    51	    else:
+    52	        print('No match: "{}"'.format(line))
+$ cat lat_lon.txt
 attr.lat_lon             : 27.83387,-65.4906
 attr.lat_lon             : 29.3 N 122.08 E
 attr.lat_lon             : 28.56_-88.70377
@@ -259,22 +240,15 @@ attr.lat_lon             : 78 N 5 E
 attr.lat_lon             : missing
 attr.lat_lon             : 0.00 N, 170.00 W
 attr.lat_lon             : 11.46'45.7" 93.01'22.3"
-$ ./ena_re.py re.txt
-lat_lon = 27.83387,-65.4906
+$ ./parse_lat_lon.py lat_lon.txt
 lat = 27.83387, lon = -65.4906
-lat_lon = 29.3 N 122.08 E
 lat = 29.3, lon = 122.08
-lat_lon = 28.56_-88.70377
 lat = 28.56, lon = -88.70377
-lat_lon = 39.283N 76.611 W
+No match: "This line will not be included"
 lat = 39.283, lon = -76.611
-lat_lon = 78 N 5 E
 lat = 78.0, lon = 5.0
-lat_lon = missing
-No match
-lat_lon = 0.00 N, 170.00 W
+No match: "attr.lat_lon             : missing"
 lat = 0.0, lon = -170.0
-lat_lon = 11.46'45.7" 93.01'22.3"
 lat = 11.46'45.7", lon = 93.01'22.3"
 ````
 
@@ -294,7 +268,7 @@ attr.collection_date     : 5/04/2012
 
 Imagine how you might go about parsing all these various representations of dates. Be aware that parsing date/time formats is so problematic and ubiquitous that many people have already written modules to assist you! 
 
-To run this code, you will need to install the `dateparser` module:
+To run the code below, you will need to install the `dateparser` module:
 
 ````
 $ python3 -m pip install dateparser
