@@ -172,9 +172,30 @@ Sometimes we actually find a `+` at the beginning, so we can make an optional ch
 
 Now we can match things that basically look like a floating point number or an integer, both positive and negative.
 
+Usually the data we want to find it part of a larger string, however, and the above fails to capture more than one thing, e.g.:
+
+````
+>>> re.search('[+-]?\d+(\.\d+)?', 'Lat is "-27.83387" and lon is "+132.43."')
+<_sre.SRE_Match object; span=(8, 17), match='-27.83387'>
+````
+
+We really need to match more than once using our pattern matching to extract data. We saw earlier that we can use parens to group optional patterns, but the parens also end up creating a **capture group** that we can refer to by position:
+
+````
+>>> re.findall('([+-]?\d+(\.\d+)?)', '(-27.83387, +132.43)')
+[('-27.83387', '.83387'), ('+132.43', '.43')]
+````
+
+OK, it was a bit unexpected that we have matches for both the whole float and the decimal part. This is because of the dual nature of the parens, and in the case of using them to group the optional part we are also creating another capture. If we change `()` to `(?:)`, we make this a non-capturing group:
+
+````
+>>> re.findall('([+-]?\d+(?:\.\d+)?)', 'lat_lon: (-27.83387, +132.43)')
+['-27.83387', '+132.43']
+````
+
 There are many resources you can use to thoroughly learn regular expressions, so I won't try to cover them completely here. I will mostly try to introduce the general idea and show you some useful regexes you could steal.
 
-Here is an example of how you can embed regexes in your Python code. This version can parse all the versions of latitude/longitude shown above:
+Here is an example of how you can embed regexes in your Python code. This version can parse all the versions of latitude/longitude shown above. This code uses parens to create capture groups which it then uses `match.group(n)` to extract:
 
 ````
 $ cat -n parse_lat_lon.py
