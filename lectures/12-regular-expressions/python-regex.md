@@ -1,10 +1,80 @@
 # Regular Expressions
 
 The term "regular expression" is a formal, linguistic term that describes the ability to desc you might be interested to read about (https://en.wikipedia.org/wiki/Regular_language). For our purposes, regular expressions (AKA "regexes" or a "regex") is a way to formally describe some string that we want to find. Regexes are a DSL (domain-specific language) that we use inside Python, just like in the previous chapter we use SQL statements to communite with SQLite. We can `import re` to use the Python regular expression module and use it to search text.
+ 
+In the tic-tac-toe exercise, we needed to see if the `--player` argument was exactly one character that was either an 'X' or an 'O'. Here's code that can do that:
+
+````
+>>> player = 'X'
+>>> if len(player) == 1 and (player == 'X' or player == 'O'):
+...   print('OK')
+...
+OK
+>>> player = 'B'
+>>> if len(player) == 1 and (player == 'X' or player == 'O'):
+...   print('OK')
+...
+````
+
+A shorter way to write this could be:
+
+````
+if len(player) == 1 and player in 'XO':
+````
+
+It's not too onerous, but it quickly gets worse as we get more complicated requirements. In that same exercise, we needed to check if `--state` was exactly 9 characters composed entirely of '.', 'X', 'O':
+
+````
+>>> state = 'XXX...OOO'
+>>> 'OK' if len(state) == 9 and all(map(lambda x: x in 'XO.', state)) else 'No'
+'OK'
+>>> state = 'XXX...OOA'
+>>> 'OK' if len(state) == 9 and all(map(lambda x: x in 'XO.', state)) else 'No'
+'No'
+````
+
+A regular expression allows us to **describe** what we want rather than **implement** the code to find what we want. We can create a class of allowed characters with `[XO]` and additionally constraint it to be exactly one character wide with `{1}` after the class. (Note that `{}` for match length can be in the format `{exactly}`, `{min,max}`, `{min,}`, or `{,max}`.)
+
+````
+>>> import re
+>>> player = 'X'
+>>> re.match('[XO]{1}', player)
+<_sre.SRE_Match object; span=(0, 1), match='X'>
+>>> player = 'A'
+>>> re.match('[XO]{1}', player)
+````
+
+We can extend this to our state problem:
+
+````
+>>> state = 'XXX...OOO'
+>>> re.match('[XO.]{9}', state)
+<_sre.SRE_Match object; span=(0, 9), match='XXX...OOO'>
+>>> state = 'XXX...OOA'
+>>> re.match('[XO.]{9}', state)
+````
+
+When we were starting out with the Unix command line, one exercise had us using `grep` to look for lines that start with vowels. One solution was:
+
+````
+$ grep -io '^[aeiou]' scarlet.txt | sort | uniq -c
+  59 A
+  10 E
+  91 I
+  20 O
+   6 U
+ 651 a
+ 199 e
+ 356 i
+ 358 o
+ 106 u
+````
+
+We used square brackets `[]` to enumerate all the vowels `[aeiou]` and used the `-i` flag to `grep` to indicate it should match case **insensitively**. Additionally, the `^` indicated that the match should occur at the start of the string.
 
 # ENA Metadata
 
-Let's examine the ENA metadata from the XML parsing example:
+Let's examine the ENA metadata from the XML parsing example. We see there are many ways that latitude/longitude have been represented:
 
 ````
 $ ./xml_ena.py *.xml | grep lat_lon
@@ -16,20 +86,6 @@ attr.lat_lon             : 78 N 5 E
 attr.lat_lon             : missing
 attr.lat_lon             : 0.00 N, 170.00 W
 attr.lat_lon             : 11.46'45.7" 93.01'22.3"
-````
-
-We see there are many ways that latitude/longitude have been represented. Look at "collection_date":
-
-````
-$ ./xml_ena.py *.xml | grep collection
-attr.collection_date     : March 24, 2014
-attr.collection_date     : 2013-08-15/2013-08-28
-attr.collection_date     : 20100910
-attr.collection_date     : 02-May-2012
-attr.collection_date     : Jul-2009
-attr.collection_date     : missing
-attr.collection_date     : 2013-12-23
-attr.collection_date     : 5/04/2012
 ````
 
 How can we go about parsing all the various ways this data has been encoded? Regular expressions provide us a way to describe in very specific way what we want. 
@@ -222,3 +278,45 @@ lat = 0.0, lon = -170.0
 lat_lon = 11.46'45.7" 93.01'22.3"
 lat = 11.46'45.7", lon = 93.01'22.3"
 ````
+
+We see a similar problem with "collection_date":
+
+````
+$ ./xml_ena.py *.xml | grep collection
+attr.collection_date     : March 24, 2014
+attr.collection_date     : 2013-08-15/2013-08-28
+attr.collection_date     : 20100910
+attr.collection_date     : 02-May-2012
+attr.collection_date     : Jul-2009
+attr.collection_date     : missing
+attr.collection_date     : 2013-12-23
+attr.collection_date     : 5/04/2012
+````
+
+Imagine how you might go about parsing all these various representations of dates. Be aware that parsing date/time formats is so problematic and ubiquitous that many people have already written modules to assist you! 
+
+To run this code, you will need to install the `dateparser` module:
+
+````
+$ python3 -m pip install dateparser
+````
+
+Et voila!
+
+````
+>>> import dateparser as p
+>>> p.parse('March 24, 2014')
+datetime.datetime(2014, 3, 24, 0, 0)
+>>> p.parse('2013-08-15')
+datetime.datetime(2013, 8, 15, 0, 0)
+>>> p.parse('20100910')
+datetime.datetime(2000, 2, 1, 9, 1)
+>>> p.parse('02-May-2012')
+datetime.datetime(2012, 5, 2, 0, 0)
+>>> p.parse('Jul-2009')
+datetime.datetime(2009, 7, 23, 0, 0)
+>>> p.parse('5/04/2012')
+datetime.datetime(2012, 5, 4, 0, 0)
+````
+
+You can see it's not perfect, e.g., "Jul-2009" should not resolve to the 23rd of July, but, honestly, what should it be? (Is the 1st any better?!) Still, this saves you writing a lot of code. And, trust me, **THIS IS REAL DATA**! While trying to parse latitude, longitude, collection date, and depth for 35K marine metagenomes from the ENA, I wrote a hundreds of lines of code and dozens of regular expressions!
