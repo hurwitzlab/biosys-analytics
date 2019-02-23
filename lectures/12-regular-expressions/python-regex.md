@@ -94,22 +94,21 @@ Let's start just with the idea of matching a number (where "number" is a string 
 
 ````
 >>> import re
->>> n1 = '27.83387'
->>> re.search('\d', n1)
+>>> re.search('\d', '27.83387')
 <_sre.SRE_Match object; span=(0, 1), match='2'>
 ````
 
 The `\d` pattern means "any number" which is the same as `[0-9]` where the `[]` creates a class of characters and `0-9` expands to all the numbers from zero to nine. The problem is that it only matches one number, `2`. Change it to `\d+` to indicate "one or more numbers":
 
 ````
->>> re.search('\d+', n1)
+>>> re.search('\d+', '27.83387')
 <_sre.SRE_Match object; span=(0, 2), match='27'>
 ````
 
 Now let's capture the decimal point: 
 
 ````
->>> re.search('\d+.', n1)
+>>> re.search('\d+.', '27.83387')
 <_sre.SRE_Match object; span=(0, 3), match='27.'>
 ````
 
@@ -123,7 +122,7 @@ You migth think that's perfect, but the `.` has a special meaning in regex. It m
 To indicate we want a literal `.` we have to make it `\.` (backslash-escape):
 
 ````
->>> re.search('\d+\.', n1)
+>>> re.search('\d+\.', '27.83387')
 <_sre.SRE_Match object; span=(0, 3), match='27.'>
 >>> re.search('\d+\.', '27x83387')
 ````
@@ -133,7 +132,7 @@ Notice that the second try returns nothing.
 To capture the bit after the `.`, add more numbers:
 
 ````
->>> re.search('\d+\.\d+', n1)
+>>> re.search('\d+\.\d+', '27.83387')
 <_sre.SRE_Match object; span=(0, 8), match='27.83387'>
 ````
 
