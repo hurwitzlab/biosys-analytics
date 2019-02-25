@@ -3,7 +3,7 @@ IMG = hello-0.0.1.img
 DEF = image.def
 
 img: clean
-	sudo $(SINGULARITY) create $(IMG) $(DEF)
+	sudo $(SINGULARITY) build $(IMG) $(DEF)
 
 img_old: clean
 	sudo $(SINGULARITY) create --size 512 $(IMG)
