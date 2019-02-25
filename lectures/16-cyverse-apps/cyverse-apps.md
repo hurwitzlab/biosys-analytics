@@ -633,7 +633,3 @@ it to the apps listed on iMicrobe so that our users can run it.
 # See Also
 
 https://cyverse.github.io/cyverse-sdk/docs/cyversesdk.html
-
-# Author
-
-Ken Youens-Clark <kyclark@email.arizona.edu>
