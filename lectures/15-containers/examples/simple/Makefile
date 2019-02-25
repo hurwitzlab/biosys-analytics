@@ -1,3 +1,5 @@
+.PHONY = img img_old shell run clean
+
 SINGULARITY = /usr/local/bin/singularity
 IMG = hello-0.0.1.img
 DEF = image.def
