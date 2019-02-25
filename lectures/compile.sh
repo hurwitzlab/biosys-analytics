@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-#TMP=$(mktemp)
-TMP="foo"
+TMP=$(mktemp)
 
 cat /dev/null > "$TMP"
 
@@ -23,6 +22,6 @@ for EXT in pdf epub; do
     pandoc -F ../bin/include.hs "$TMP" -o "biosys.$EXT"
 done
 
-#rm "$TMP"
+rm "$TMP"
 
 echo "Done."
