@@ -462,4 +462,4 @@ When I'm in an environment with a directory I can share with my team (like the U
 
 # The (Data and Software) Carpentries
 
-The Software Carpentry project aims to teach basic command-line usage. You should definitely look through https://swcarpentry.github.io/shell-novice/.
+The Software Carpentry project aims to teach basic command-line usage. You should definitely look through `https://swcarpentry.github.io/shell-novice/`.
