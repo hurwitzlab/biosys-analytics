@@ -1182,7 +1182,128 @@ $ cat -n parse_prodigal_gff.py
 
 ## XML
 
-Maybe something with parsing NCBI taxonomy?
+Here's an example that looks at XML from the NCBI taxonomy. Here is what the raw file looks like:
+
+````
+$ head ena-101.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<SAMPLE alias="SAMD00024455" accession="DRS018892" broker_name="DDBJ">
+     <IDENTIFIERS>
+          <PRIMARY_ID>DRS018892</PRIMARY_ID>
+          <EXTERNAL_ID namespace="BioSample">SAMD00024455</EXTERNAL_ID>
+          <SUBMITTER_ID namespace="">SAMD00024455</SUBMITTER_ID>
+     </IDENTIFIERS>
+     <TITLE>Surface water bacterial community from the East China Sea Site 100</TITLE>
+     <SAMPLE_NAME>
+          <TAXON_ID>408172</TAXON_ID>
+````
+
+The whitespace in XML is not significant and simply bloats the size of the file, so often you will get something that is unreadable. I recommend you install the program `xmllint` to look at such files. If you inspect the file, you can see that XML gives us a way to represent hierarchical data unlike CSV files which are essentially "flat" (unless you start sticking things like lists and key/value pairs [dictionaries]). We need to use a specific XML parser and use accessors that look quite a bit like file paths. There is a "root" of the XML from which we can descend into the structure to find data. Here is a program that will extract various parts of the XML.
+
+````
+$ cat -n xml_ena.py
+     1	#!/usr/bin/env python3
+     2	"""
+     3	Author : kyclark
+     4	Date   : 2019-02-22
+     5	Purpose: Rock the Casbah
+     6	"""
+     7
+     8	import argparse
+     9	import os
+    10	import sys
+    11	from xml.etree.ElementTree import ElementTree
+    12
+    13
+    14	# --------------------------------------------------
+    15	def get_args():
+    16	    """get command-line arguments"""
+    17	    parser = argparse.ArgumentParser(
+    18	        description='Argparse Python script',
+    19	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    20
+    21	    parser.add_argument('xml', metavar='XML', help='XML input', nargs='+')
+    22
+    23	    parser.add_argument(
+    24	        '-o',
+    25	        '--outdir',
+    26	        help='Output directory',
+    27	        metavar='str',
+    28	        type=str,
+    29	        default='out')
+    30
+    31	    return parser.parse_args()
+    32
+    33
+    34	# --------------------------------------------------
+    35	def warn(msg):
+    36	    """Print a message to STDERR"""
+    37	    print(msg, file=sys.stderr)
+    38
+    39
+    40	# --------------------------------------------------
+    41	def die(msg='Something bad happened'):
+    42	    """warn() and exit with error"""
+    43	    warn(msg)
+    44	    sys.exit(1)
+    45
+    46
+    47	# --------------------------------------------------
+    48	def main():
+    49	    """Make a jazz noise here"""
+    50	    args = get_args()
+    51	    xml_files = args.xml
+    52	    out_dir = args.outdir
+    53
+    54	    if not os.path.isdir(out_dir):
+    55	        os.makedirs(out_dir)
+    56
+    57	    for file in xml_files:
+    58	        print('>>>>>>', file)
+    59	        tree = ElementTree()
+    60	        root = tree.parse(file)
+    61
+    62	        d = []
+    63	        for key, value in root.attrib.items():
+    64	            d.append(('sample.' + key, value))
+    65
+    66	        for id_ in root.find('IDENTIFIERS'):
+    67	            d.append(('id.' + id_.tag, id_.text))
+    68
+    69	        for attr in root.findall('SAMPLE_ATTRIBUTES/SAMPLE_ATTRIBUTE'):
+    70	            d.append(('attr.' + attr.find('TAG').text, attr.find('VALUE').text))
+    71
+    72	        for key, value in d:
+    73	            print('{:25}: {}'.format(key, value))
+    74
+    75	        print()
+    76
+    77	# --------------------------------------------------
+    78	if __name__ == '__main__':
+    79	    main()
+$ ./xml_ena.py ena-101.xml
+>>>>>> ena-101.xml
+sample.alias             : SAMD00024455
+sample.accession         : DRS018892
+sample.broker_name       : DDBJ
+id.PRIMARY_ID            : DRS018892
+id.EXTERNAL_ID           : SAMD00024455
+id.SUBMITTER_ID          : SAMD00024455
+attr.sample_name         : 100A
+attr.collection_date     : 2013-08-15/2013-08-28
+attr.depth               : 0.5m
+attr.env_biome           : coastal biome
+attr.env_feature         : natural environment
+attr.env_material        : water
+attr.geo_loc_name        : China:the East China Sea
+attr.lat_lon             : 29.3 N 122.08 E
+attr.project_name        : seawater bacterioplankton
+attr.BioSampleModel      : MIMARKS.survey.water
+attr.ENA-SPOT-COUNT      : 54843
+attr.ENA-BASE-COUNT      : 13886949
+attr.ENA-FIRST-PUBLIC    : 2015-02-15
+attr.ENA-LAST-UPDATE     : 2018-08-15
+````
 
 ## JSON
 
