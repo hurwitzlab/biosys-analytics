@@ -1305,6 +1305,109 @@ attr.ENA-FIRST-PUBLIC    : 2015-02-15
 attr.ENA-LAST-UPDATE     : 2018-08-15
 ````
 
+## SwissProt
+
+The SwissProt format is one, like GenBank and EMBL, that allows for detailed annotation of a sequence whereas FASTA/Q are primarily devoted to the sequence/quality and sometimes metadata/annotations are crudely shoved into the header line. Parsing SwissProt, however, is no more difficult thanks to the `SeqIO` module. Most of the interesting non-sequence data is in the `annotations` which is a dictionary where the keys are strings like "accessions" and "keywords" and the values are ints, strings, and lists.
+
+Here is an example program to print out the accessions, keywords, and taxonomy in a SwissProt record:
+
+````
+$ cat -n swissprot.py
+     1	#!/usr/bin/env python3
+     2
+     3	import argparse
+     4	import sys
+     5	from Bio import SeqIO
+     6
+     7
+     8	# --------------------------------------------------
+     9	def get_args():
+    10	    """get args"""
+    11	    parser = argparse.ArgumentParser(
+    12	        description='Parse Swissprot file',
+    13	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    14
+    15	    parser.add_argument('file', metavar='FILE', help='Swissprot file')
+    16
+    17	    return parser.parse_args()
+    18
+    19
+    20	# --------------------------------------------------
+    21	def die(msg='Something bad happened'):
+    22	    """print message and exit with error"""
+    23	    print(msg)
+    24	    sys.exit(1)
+    25
+    26
+    27	# --------------------------------------------------
+    28	def main():
+    29	    """main"""
+    30	    args = get_args()
+    31	    file = args.file
+    32
+    33	    for i, record in enumerate(SeqIO.parse(file, "swiss"), start=1):
+    34	        print('{:3}: {}'.format(i, record.id))
+    35	        annotations = record.annotations
+    36
+    37	        for annot_type in ['accessions', 'keywords', 'taxonomy']:
+    38	            if annot_type in annotations:
+    39	                print('\tANNOT {}:'.format(annot_type))
+    40	                val = annotations[annot_type]
+    41	                if type(val) is list:
+    42	                    for v in val:
+    43	                        print('\t\t{}'.format(v))
+    44	                else:
+    45	                    print('\t\t{}'.format(val))
+    46
+    47
+    48
+    49	# --------------------------------------------------
+    50	if __name__ == '__main__':
+    51	    main()
+$ ./swissprot.py input.swiss
+  1: G5EEM5
+	ANNOT accessions://
+		Nematoda
+		Chromadorea
+		Rhabditida
+		Rhabditoidea
+		Rhabditidae
+		Peloderinae
+		Caenorhabditis
+````
+
+You should look at the sample "input.swiss" file to get a greater understanding of what is contained.
+
 ## JSON
 
-There's lots of JSON in the world that needs to be parsed.
+JSON stands for JavaScript Object Notation, and it has become the lingua franca of data exchange on the Internet. For our example, I will use the JSON that is returned by https://www.imicrobe.us/api/v1/samples/578. We need to `import json` and use `json.load` to read from an open file handle (there is also `loads` -- load string) to parse the data from JSON into a Python dictionary. We could `print` that, but it's not nearly as pretty as printing the JSON which we can do with `json.dumps` (dump string) and the keyword argument `indent=4` to get nice indentation.
+
+````
+$ cat -n json_parse.py
+     1	#!/usr/bin/env python3
+     2
+     3	import json
+     4
+     5	file = '578.json'
+     6	data = json.load(open(file))
+     7	print(json.dumps(data, indent=4))
+$ ./json_parse.py | head -12
+{
+    "sample_id": 578,
+    "project_id": 26,
+    "sample_acc": "CAM_SMPL_GS108",
+    "sample_name": "GS108",
+    "sample_type": "Metagenome",
+    "sample_description": "GS108",
+    "url": "",
+    "creation_date": "2018-07-06T04:43:09.000Z",
+    "project": {
+        "project_id": 26,
+        "project_code": "CAM_PROJ_GOS",
+````
+
+If you `head 578.json`, you will see there is no whitespace, so this is a nicer way to look at the data; however, if all we wanted was to look at pretty JSON, we could do this:
+
+````
+$ python -m json.tool 578.json
+````
