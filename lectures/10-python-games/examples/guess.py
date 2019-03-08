@@ -6,6 +6,7 @@ Purpose: Guess-the-number game
 
 import argparse
 import random
+import re
 import sys
 
 
@@ -44,6 +45,19 @@ def get_args():
 
 
 # --------------------------------------------------
+def warn(msg):
+    """Print a message to STDERR"""
+    print(msg, file=sys.stderr)
+
+
+# --------------------------------------------------
+def die(msg='Something bad happened'):
+    """warn() and exit with error"""
+    warn(msg)
+    sys.exit(1)
+
+
+# --------------------------------------------------
 def main():
     """main"""
     args = get_args()
@@ -53,16 +67,13 @@ def main():
     secret = random.randint(low, high)
 
     if low < 1:
-        print('--min cannot be lower than 1')
-        sys.exit(1)
+        die('--min "{}" cannot be lower than 1'.format(low))
 
     if guesses_allowed < 1:
-        print('--guesses cannot be lower than 1')
-        sys.exit(1)
+        die('--guesses "{}" cannot be lower than 1'.format(high))
 
     if low > high:
-        print('--min "{}" is higher than --max "{}"'.format(low, high))
-        sys.exit(1)
+        die('--min "{}" is higher than --max "{}"'.format(low, high))
 
     prompt = 'Guess a number between {} and {} (q to quit): '.format(low, high)
     num_guesses = 0
@@ -71,29 +82,26 @@ def main():
         guess = input(prompt)
         num_guesses += 1
 
-        if guess == 'q':
-            print('Now you will never know the answer.')
-            sys.exit(0)
+        if re.match('q(uit)?', guess.lower()):
+            die('Now you will never know the answer.')
 
         if not guess.isdigit():
-            print('"{}" is not a number'.format(guess))
+            warn('"{}" is not a number'.format(guess))
             continue
 
-        print('You guessed "{}"'.format(guess))
         num = int(guess)
 
-        if num_guesses >= guesses_allowed:
-            print('Too many guesses! The number was "{}."'.format(secret))
-            sys.exit()
-        elif not low < num < high:
-            print('Number is not in the allowed range')
+        if not low <= num <= high:
+            print('Number "{}" is not in the allowed range'.format(num))
         elif num == secret:
-            print('You win!')
+            print('"{}" is correct. You win!'.format(num))
             break
-        elif num < secret:
-            print('Too low.')
         else:
-            print('Too high.')
+            print('"{}" is too {}.'.format(num, 'low'
+                                           if num < secret else 'high'))
+
+        if num_guesses >= guesses_allowed:
+            die('Too many guesses, loser! The number was "{}."'.format(secret))
 
 
 # --------------------------------------------------

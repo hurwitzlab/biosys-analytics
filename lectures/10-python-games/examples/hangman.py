@@ -38,6 +38,26 @@ def get_args():
 
 
 # --------------------------------------------------
+def bail(msg):
+    """Print a message to STDOUT and quit with no error"""
+    print(msg)
+    sys.exit(0)
+
+
+# --------------------------------------------------
+def warn(msg):
+    """Print a message to STDERR"""
+    print(msg, file=sys.stderr)
+
+
+# --------------------------------------------------
+def die(msg='Something bad happened'):
+    """warn() and exit with error"""
+    warn(msg)
+    sys.exit(1)
+
+
+# --------------------------------------------------
 def main():
     """main"""
     args = get_args()
@@ -47,24 +67,22 @@ def main():
     wordlist = args.wordlist
 
     if not os.path.isfile(wordlist):
-        print('--wordlist "{}" is not a file.'.format(wordlist))
-        sys.exit(1)
+        die('--wordlist "{}" is not a file.'.format(wordlist))
 
     if min_len < 1:
-        print('--minlen must be positive')
-        sys.exit(1)
+        die('--minlen must be positive')
 
     if not 3 <= max_len <= 20:
-        print('--maxlen should be between 3 and 20')
-        sys.exit(1)
+        die('--maxlen should be between 3 and 20')
 
     if min_len > max_len:
-        print('--minlen ({}) is greater than --maxlen ({})'.format(
+        die('--minlen ({}) is greater than --maxlen ({})'.format(
             min_len, max_len))
-        sys.exit(1)
 
-    regex = re.compile('^[a-z]{' + str(min_len) + ',' + str(max_len) + '}$')
-    words = [w for w in open(wordlist).read().split() if regex.match(w)]
+    good_word = re.compile('^[a-z]{' + str(min_len) + ',' + str(max_len) +
+                           '}$')
+    words = [w for w in open(wordlist).read().split() if good_word.match(w)]
+
     word = random.choice(words)
     play({'word': word, 'max_misses': max_misses})
 
@@ -74,9 +92,7 @@ def play(state):
     """Loop to play the game"""
     word = state.get('word') or ''
 
-    if not word:
-        print('No word!')
-        sys.exit(1)
+    if not word: die('No word!')
 
     guessed = state.get('guessed') or list('_' * len(word))
     prev_guesses = state.get('prev_guesses') or set()
@@ -85,24 +101,21 @@ def play(state):
 
     if ''.join(guessed) == word:
         msg = 'You win. You guessed "{}" with "{}" miss{}!'
-        print(msg.format(word, num_misses, '' if num_misses == 1 else 'es'))
-        sys.exit(0)
+        bail(msg.format(word, num_misses, '' if num_misses == 1 else 'es'))
 
     if num_misses >= max_misses:
-        print('You lose, loser!  The word was "{}."'.format(word))
-        sys.exit(0)
+        bail('You lose, loser!  The word was "{}."'.format(word))
 
     print('{} (Misses: {})'.format(' '.join(guessed), num_misses))
     new_guess = input('Your guess? ("?" for hint, "!" to quit) ').lower()
 
     if new_guess == '!':
-        print('Better luck next time, loser.')
-        sys.exit(0)
+        bail('Better luck next time, loser.')
     elif new_guess == '?':
         new_guess = random.choice([x for x in word if x not in guessed])
         num_misses += 1
 
-    if not re.match('^[a-zA-Z]$', new_guess):
+    if not re.match('^[a-z]$', new_guess):
         print('"{}" is not a letter'.format(new_guess))
         num_misses += 1
     elif new_guess in prev_guesses:
