@@ -55,15 +55,16 @@ def test_good_input1():
     if os.path.isfile(err):
         os.remove(err)
 
-    rv1, out1 = getstatusoutput('{} --annotations {} {} 2>{}'.format(
-        prg, centroids, hits1, err))
-    assert rv1 == 0
-    assert len(out1.split('\n')) == 28
+    try:
+        rv1, out1 = getstatusoutput('{} --annotations {} {} 2>{}'.format(
+            prg, centroids, hits1, err))
+        assert rv1 == 0
+        assert len(out1.split('\n')) == 28
 
-    err_lines = open(err).readlines()
-    assert len(err_lines) == 223
-
-    os.remove(err)
+        err_lines = open(err).readlines()
+        assert len(err_lines) == 223
+    finally:
+        os.remove(err)
 
 # --------------------------------------------------
 def test_good_input2():
@@ -73,27 +74,28 @@ def test_good_input2():
     if os.path.isfile(out_file):
         os.remove(out_file)
 
-    rv1, out1 = getstatusoutput('{} -a {} --outfile {} {}'.format(
-        prg, centroids, out_file, hits2))
-    assert rv1 == 0
-    assert len(out1.split('\n')) == 225
+    try:
+        rv1, out1 = getstatusoutput('{} -a {} --outfile {} {}'.format(
+            prg, centroids, out_file, hits2))
+        assert rv1 == 0
+        assert len(out1.split('\n')) == 225
 
-    out_lines = open(out_file).readlines()
-    assert len(out_lines) == 26
+        out_lines = open(out_file).readlines()
+        assert len(out_lines) == 26
 
-    with open(out_file) as fh:
-        reader = csv.DictReader(fh, delimiter='\t')
-        assert reader.fieldnames == ['seq_id', 'pident', 'genus', 'species']
+        with open(out_file) as fh:
+            reader = csv.DictReader(fh, delimiter='\t')
+            assert reader.fieldnames == ['seq_id', 'pident', 'genus', 'species']
 
-        for row in reader:
-            if row['seq_id'] == '26cbd1b8b6fcd255774f4f79be2f259c':
-                assert row['pident'] == '98.701'
-                assert row['genus'] == 'Prochlorococcus MIT9313'
-                assert row['species'] == 'NA'
-                break
+            for row in reader:
+                if row['seq_id'] == '26cbd1b8b6fcd255774f4f79be2f259c':
+                    assert row['pident'] == '98.701'
+                    assert row['genus'] == 'Prochlorococcus MIT9313'
+                    assert row['species'] == 'NA'
+                    break
 
-    out_contents = open(out_file, 'rb').read()
-    md5_sum = hashlib.md5(out_contents).hexdigest()
-    assert md5_sum == '333544d443be7724a6c1d3ee9e59f799'
-
-    os.remove(out_file)
+        out_contents = open(out_file, 'rb').read()
+        md5_sum = hashlib.md5(out_contents).hexdigest()
+        assert md5_sum == '333544d443be7724a6c1d3ee9e59f799'
+    finally:
+        os.remove(out_file)
