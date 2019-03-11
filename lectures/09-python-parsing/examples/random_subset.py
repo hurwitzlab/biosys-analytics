@@ -6,6 +6,7 @@ Purpose: Probabalistically subset FASTQ/A
 
 import argparse
 import os
+import re
 import sys
 from random import randint
 from Bio import SeqIO
@@ -36,7 +37,6 @@ def get_args():
         type=int,
         default=0)
 
-
     parser.add_argument(
         '-f',
         '--input_format',
@@ -44,7 +44,7 @@ def get_args():
         metavar='IN_FMT',
         type=str,
         choices=['fastq', 'fasta'],
-        default='fastq')
+        default='')
 
     parser.add_argument(
         '-F',
@@ -53,7 +53,7 @@ def get_args():
         metavar='OUT_FMT',
         type=str,
         choices=['fastq', 'fasta'],
-        default='fastq')
+        default='')
 
     parser.add_argument(
         '-o',
@@ -93,26 +93,35 @@ def main():
     if not os.path.isfile(file):
         die('"{}" is not a file'.format(file))
 
+    in_fmt = args.input_format
+    if not in_fmt:
+        _, ext = os.path.splitext(file)
+        in_fmt = 'fastq' if re.match('\.f(ast)?q$', ext) else 'fasta'
+
+    out_fmt = args.output_format or in_fmt
+
     if not min_num < pct < max_num:
         msg = '--pct "{}" must be between {} and {}'
         die(msg.format(pct, min_num, max_num))
 
     if not out_file:
         base, _ = os.path.splitext(file)
-        out_file = '{}.sub{}.{}'.format(base, pct, args.output_format)
+        out_file = '{}.sub{}.{}'.format(base, pct, out_fmt)
 
     out_fh = open(out_file, 'wt')
     num_taken = 0
     total_num = 0
 
     with open(file) as fh:
-        for rec in SeqIO.parse(fh, args.input_format):
+        for rec in SeqIO.parse(fh, in_fmt):
             total_num += 1
             if randint(min_num, max_num) <= pct:
                 num_taken += 1
-                SeqIO.write(rec, out_fh, args.output_format)
+                SeqIO.write(rec, out_fh, out_fmt)
                 if max_num_reads > 0 and num_taken == max_num_reads:
                     break
+
+    out_fh.close()
 
     print('Wrote {} of {} ({:.02f}%) to "{}"'.format(
         num_taken, total_num, num_taken / total_num * 100, out_file))
