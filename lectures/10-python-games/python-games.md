@@ -226,6 +226,17 @@ If it's not a digit, we `continue` to go to the next iteration of the loop.  If 
 <type 'int'>
 ````
 
+There's an alternate way to handle the conversion of the guess using a `try/except` block (see `guess-try.py`) where the call to `int` is wrapped in a `try` block that has an `except` block that catches the exception that Python throws when it fails. Cf https://docs.python.org/3/tutorial/errors.html:
+
+````
+num = 0
+try:
+    num = int(guess)
+except:
+    warn('"{}" is not an integer'.format(guess))
+    continue
+````
+
 Now we need to determine if the user has guessed too many times, if the number if too high or low, or if they've won the game. Lastly we see if the user has exceeded the maximum number of guesses:
 
 ````
