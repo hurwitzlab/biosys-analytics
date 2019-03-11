@@ -614,4 +614,4 @@ play({
 })
 ````
 
-This is an example of a recursive algorithm, and they only work if you first handle the "base case." For Hangman, that is where the user guesses the word or exceeds the number of guesses, both of which will `bail` on the program; otherwise, the program continues to the next iteration.
+This is an example of a recursive algorithm (https://readtheplaque.com/plaque/the-toronto-recursive-history-project), and they only work if you first handle the "base case." For Hangman, that is where the user guesses the word or exceeds the number of guesses, both of which will `bail` on the program; otherwise, the program continues to the next iteration.
