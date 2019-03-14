@@ -64,7 +64,8 @@ def test_good_input1():
         err_lines = open(err).readlines()
         assert len(err_lines) == 223
     finally:
-        os.remove(err)
+        if os.path.isfile(err):
+            os.remove(err)
 
 # --------------------------------------------------
 def test_good_input2():
@@ -98,4 +99,5 @@ def test_good_input2():
         #md5_sum = hashlib.md5(out_contents).hexdigest()
         #assert md5_sum == '333544d443be7724a6c1d3ee9e59f799'
     finally:
-        os.remove(out_file)
+        if os.path.isfile(out_file):
+            os.remove(out_file)
