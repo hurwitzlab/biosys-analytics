@@ -76,8 +76,8 @@ The other way is use the `Bio.SwissProt` module which has attributes for the sam
 
 Cf:
 
-* https://biopython.readthedocs.io/en/latest/Tutorial/chapter_uniprot.html) 
-* http://biopython.org/DIST/docs/api/Bio.SwissProt.Record-class.html)
+* https://biopython.readthedocs.io/en/latest/Tutorial/chapter_uniprot.html
+* http://biopython.org/DIST/docs/api/Bio.SwissProt.Record-class.html
 
 However you choose to parse, you should be able to pass the tests. FWIW, I used the first method.
 
