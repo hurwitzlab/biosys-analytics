@@ -629,3 +629,51 @@ GGT
 GTT
 TTT
 ````
+
+# Make All Items in a List Uppercase
+
+If you need to check all the strings in a list in a case-insensitive fashion, one way would be to upper- or lower-case all the strings. A very Pythonic way is to use a list comprehension, but we can also borrow an idea from the purely functional programming world where we use a "higher-order function," which is a function that takes one or more other functions as arguments. In this case, the `map` function expects as it's first argument some other function, here `str.upper`. Notice it's not `str.upper()` with parens! That is the syntax for **calling** the `str.upper` function. We want to pass **the function itself**, so we leave off the parens. The function is applied to each item in the list and returns a new list. The original list remains unchanged.
+
+````
+>>> a = ['foo', 'bar', 'baz']
+>>> [s.upper() for s in a]
+['FOO', 'BAR', 'BAZ']
+>>> list(map(str.upper, a))
+['FOO', 'BAR', 'BAZ']
+>>> a
+['foo', 'bar', 'baz']
+````
+
+Another way to write the `map` is to use a `lambda` expression which is just a very short, anonymouse (unnamed) function:
+
+````
+>>> list(map(lambda s: s.upper(), a))
+['FOO', 'BAR', 'BAZ']
+````
+
+Here is the code in action:
+
+````
+$ cat -n upper_list.py
+     1	#!/usr/bin/env python3
+     2
+     3	import os
+     4	import sys
+     5
+     6	args = sys.argv[1:]
+     7
+     8	if len(args) < 1:
+     9	    print('Usage: {} ARG [ARG...]'.format(os.path.basename(sys.argv[0])))
+    10	    sys.exit(1)
+    11
+    12	print('List comprehension')
+    13	print(', '.join([x.upper() for x in args]))
+    14
+    15	print('Map')
+    16	print(', '.join(map(str.upper, args)))
+$ ./upper_list.py foo bar baz
+List comprehension
+FOO, BAR, BAZ
+Map
+FOO, BAR, BAZ
+````
