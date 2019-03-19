@@ -2,6 +2,128 @@
 
 Games are a terrific way to learn. If you take something simple you know well, you have all the information you need to complete it. Something simple like tic-tac-toe -- you know you need a board, some way for the user to select a cell, you need to keep track of who's playing (X or O), when they've made a bad move, and when someone has won. Games often need random values, interact with the user, employ infinite loops -- in short, they are fascinating and fun to program and play.
 
+# Twelve Days of Christmas
+
+Here is an implementation of the "Twelve Days of Christmas" song. It uses two loops to count up from 1 for each step and then a countdown from each step back to 1. Notice I use integers as the keys to the dictionaries.
+
+````
+$ cat -n twelve_days.py
+     1	#!/usr/bin/env python3
+     2	"""
+     3	Author : kyclark
+     4	Date   : 2019-03-19
+     5	Purpose: Twelve Days of Christmas
+     6	"""
+     7
+     8	import argparse
+     9	import sys
+    10
+    11
+    12	# --------------------------------------------------
+    13	def get_args():
+    14	    """get command-line arguments"""
+    15	    parser = argparse.ArgumentParser(
+    16	        description='Twelve Days of Christmas',
+    17	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    18
+    19	    parser.add_argument(
+    20	        '-o',
+    21	        '--outfile',
+    22	        help='Outfile (STDOUT)',
+    23	        metavar='str',
+    24	        type=str,
+    25	        default='')
+    26
+    27	    parser.add_argument(
+    28	        '-n',
+    29	        '--number_days',
+    30	        help='Number of days to sing',
+    31	        metavar='int',
+    32	        type=int,
+    33	        default=12)
+    34
+    35	    return parser.parse_args()
+    36
+    37
+    38	# --------------------------------------------------
+    39	def warn(msg):
+    40	    """Print a message to STDERR"""
+    41	    print(msg, file=sys.stderr)
+    42
+    43
+    44	# --------------------------------------------------
+    45	def die(msg='Something bad happened'):
+    46	    """warn() and exit with error"""
+    47	    warn(msg)
+    48	    sys.exit(1)
+    49
+    50
+    51	# --------------------------------------------------
+    52	def main():
+    53	    """Make a jazz noise here"""
+    54	    args = get_args()
+    55	    out_file = args.outfile
+    56	    num_days = args.number_days
+    57
+    58	    out_fh = open(out_file, 'wt') if out_file else sys.stdout
+    59
+    60	    days = {
+    61	        12: 'Twelve drummers drumming',
+    62	        11: 'Eleven pipers piping',
+    63	        10: 'Ten lords a leaping',
+    64	        9: 'Nine ladies dancing',
+    65	        8: 'Eight maids a milking',
+    66	        7: 'Seven swans a swimming',
+    67	        6: 'Six geese a laying',
+    68	        5: 'Five gold rings',
+    69	        4: 'Four calling birds',
+    70	        3: 'Three French hens',
+    71	        2: 'Two turtle doves',
+    72	        1: 'a partridge in a pear tree',
+    73	    }
+    74
+    75	    cardinal = {
+    76	        12: 'twelfth',
+    77	        11: 'eleven',
+    78	        10: 'tenth',
+    79	        9: 'ninth',
+    80	        8: 'eighth',
+    81	        7: 'seventh',
+    82	        6: 'sixth',
+    83	        5: 'fifth',
+    84	        4: 'fourth',
+    85	        3: 'third',
+    86	        2: 'second',
+    87	        1: 'first',
+    88	    }
+    89
+    90	    if not num_days in days:
+    91	        die('Cannot sing "{}" days'.format(num_days))
+    92
+    93	    def ucfirst(s):
+    94	        return s[0].upper() + s[1:]
+    95
+    96	    for i in range(1, num_days + 1):
+    97	        first = 'On the {} day of Christmas,\nMy true love gave to me,'
+    98	        out_fh.write(first.format(cardinal[i]) + '\n')
+    99	        for j in reversed(range(1, i + 1)):
+   100	            if j == 1:
+   101	                if i == 1:
+   102	                    out_fh.write('{}.\n'.format(ucfirst(days[j])))
+   103	                else:
+   104	                    out_fh.write('And {}.\n'.format(days[j]))
+   105	            else:
+   106	                out_fh.write('{},\n'.format(days[j]))
+   107
+   108	        if i < max(days.keys()):
+   109	            out_fh.write('\n')
+   110
+   111
+   112	# --------------------------------------------------
+   113	if __name__ == '__main__':
+   114	    main()
+````
+
 # Guessing Game
 
 Let's write a simple program where the user has to guess a random number. First, let's sketch out some pseudo-code:
