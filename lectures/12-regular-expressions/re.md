@@ -1,9 +1,10 @@
 
 # Introduction to Regular Expressions in Python
 
+To use regular expressions:
+
 
 ```python
-# To use regular expressions
 import re
 ```
 
