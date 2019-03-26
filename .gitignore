@@ -4,3 +4,5 @@ __pycache__
 *~
 *.epub
 .cache
+.ipynb_checkpoints
+.DS_Store
