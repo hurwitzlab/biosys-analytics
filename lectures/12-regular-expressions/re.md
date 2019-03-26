@@ -15,6 +15,12 @@ for player in ['X', 'A', 'O', '5']:
         print('{} bad'.format(player))
 ```
 
+    X OK
+    A bad
+    O OK
+    5 bad
+
+
 A shorter way to write this could be:
 
 
@@ -26,14 +32,25 @@ for player in ['X', 'A', 'B', '5']:
         print('{} bad'.format(player))
 ```
 
+    X OK
+    A bad
+    B bad
+    5 bad
+
+
 It's not too onerous, but it quickly gets worse as we get more complicated requirements. In that same exercise, we needed to check if `--state` was exactly 9 characters composed entirely of ".", "X", "O":
 
 
 ```python
 for state in ['XXX...OOO', 'XXX...OOA']:
+    #print([(x, x in 'XO.') for x in state])
     print(state, 'OK' if len(state) == 9 and 
           all(map(lambda x: x in 'XO.', state)) else 'No')
 ```
+
+    XXX...OOO OK
+    XXX...OOA No
+
 
 Can we make this simpler? Well, when we were starting out with the Unix command line, one exercise had us using `grep` to look for lines that start with vowels. One solution was:
 
@@ -69,6 +86,10 @@ Now let's describe our pattern using a character class `[XO]` and the length `{1
 for player in ['X', 'A']:
     print(player, re.match('[XO]{1}', player))
 ```
+
+    X <_sre.SRE_Match object; span=(0, 1), match='X'>
+    A None
+
 
 We can extend this to our state problem:
 
@@ -153,13 +174,13 @@ We can use `{}` to indicate `{min,max}`, `{min,}`, `{,max}`, or `{exactly}`:
 
 
 ```python
-print(re.match('\d{1,4}', '1234567890'))
+print(re.match('\d{1,4}', '74636582'))
 print(re.match('\d{1,}', '1234567890'))
 print(re.match('\d{,5}', '1234567890'))
 print(re.match('\d{8}', '1234567890'))
 ```
 
-    <_sre.SRE_Match object; span=(0, 4), match='1234'>
+    <_sre.SRE_Match object; span=(0, 4), match='7463'>
     <_sre.SRE_Match object; span=(0, 10), match='1234567890'>
     <_sre.SRE_Match object; span=(0, 5), match='12345'>
     <_sre.SRE_Match object; span=(0, 8), match='12345678'>
@@ -202,6 +223,13 @@ date_re = re.compile('\d{4}'  # year
                      '[/-]'   # separator
                      '\d{2}'  # month
                      '[/-]'   # separator
+                     '\d{2}') # day
+
+sep = '[/-]'
+date_re = re.compile('\d{4}' + # year
+                     sep     + # separator
+                     '\d{2}' + # month
+                     sep     + # separator
                      '\d{2}') # day
 
 dates = ['1999-01-01', '1999/01/01']
@@ -737,7 +765,7 @@ We really need to match more than once using our pattern matching to extract dat
 
 
 ```python
-re.findall('([+-]?\d+(\.\d+)?)', '(-27.83387, +132.43)')
+re.findall('([+-]?\d+(\.\d+)?)','Lat is "-27.83387" and lon is "+132.43."')
 ```
 
 
@@ -751,7 +779,7 @@ OK, it was a bit unexpected that we have matches for both the whole float and th
 
 
 ```python
-re.findall('([+-]?\d+(?:\.\d+)?)', 'lat_lon: (-27.83387, +132.43)')
+re.findall('([+-]?\d+(?:\.\d+)?)', 'Lat is "-27.83387" and lon is "+132.43."')
 ```
 
 
@@ -760,10 +788,6 @@ re.findall('([+-]?\d+(?:\.\d+)?)', 'lat_lon: (-27.83387, +132.43)')
     ['-27.83387', '+132.43']
 
 
-
-There are many resources you can use to thoroughly learn regular expressions, so I won't try to cover them completely here. I will mostly try to introduce the general idea and show you some useful regexes you could steal.
-
-Here is an example of how you can embed regexes in your Python code. This version can parse all the versions of latitude/longitude shown above. This code uses parens to create capture groups which it then uses `match.group(n)` to extract:
 
 There are many resources you can use to thoroughly learn regular expressions, so I won't try to cover them completely here. I will mostly try to introduce the general idea and show you some useful regexes you could steal.
 
@@ -877,18 +901,18 @@ for date in ['March 24, 2014',
              'Jul-2009', 
              '5/04/2012']:
     
-    print('{}\t{}'.format(dateparser.parse(date), date))
+    print('{:15}\t{}'.format(date, dateparser.parse(date)))
 ```
 
-    2014-03-24 00:00:00	March 24, 2014
-    2013-08-15 00:00:00	2013-08-15
-    2000-02-01 09:01:00	20100910
-    2012-05-02 00:00:00	02-May-2012
-    2009-07-20 00:00:00	Jul-2009
-    2012-05-04 00:00:00	5/04/2012
+    March 24, 2014 	2014-03-24 00:00:00
+    2013-08-15     	2013-08-15 00:00:00
+    20100910       	2000-02-01 09:01:00
+    02-May-2012    	2012-05-02 00:00:00
+    Jul-2009       	2009-07-26 00:00:00
+    5/04/2012      	2012-05-04 00:00:00
 
 
-You can see it's not perfect, e.g., "Jul-2009" should not resolve to the 23rd of July, but, honestly, what should it be? (Is the 1st any better?!) Still, this saves you writing a lot of code. And, trust me, **THIS IS REAL DATA**! While trying to parse latitude, longitude, collection date, and depth for 35K marine metagenomes from the ENA, I wrote a hundreds of lines of code and dozens of regular expressions!
+You can see it's not perfect, e.g., "20100910" should be "2010-09-10" and "Jul-2009" should not resolve to the 26th of July, but, honestly, what should it be? (Is the 1st any better?!) Still, this saves you writing a lot of code. And, trust me, **THIS IS REAL DATA**! While trying to parse latitude, longitude, collection date, and depth for 35K marine metagenomes from the ENA, I wrote a hundreds of lines of code and dozens of regular expressions!
 
 # Exercises
 
