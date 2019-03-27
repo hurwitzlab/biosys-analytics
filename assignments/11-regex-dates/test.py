@@ -192,6 +192,6 @@ def test_bad_input():
     """fails on bad input"""
     year, month, day, hour, minute, sec = gen_date()
     sep = random.choice(list('!@@#$%^&*():[]:;/?,.~|'))
-    out = getoutput('{} {}'.format(prg, sep.join(map(str,
+    out = getoutput('{} "{}"'.format(prg, sep.join(map(str,
                                                      [year, month, day]))))
     assert out == 'No match'
