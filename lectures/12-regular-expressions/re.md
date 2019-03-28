@@ -334,13 +334,13 @@ SSNs always use a dash (`-`) as a number separator, but dates do not.
 
 ```python
 date_re = re.compile('\d{4}-\d{2}-\d{2}')
-dates = ['1999-01-01', '1999/01/01']
+dates = ['1999-01-02', '1999/01/02']
 for d in dates:
     print('{}: {}'.format(d, date_re.match(d)))
 ```
 
-    1999-01-01: <_sre.SRE_Match object; span=(0, 10), match='1999-01-01'>
-    1999/01/01: None
+    1999-01-02: <_sre.SRE_Match object; span=(0, 10), match='1999-01-02'>
+    1999/01/02: None
 
 
 Just as we created a character class with `[0-9]` to represent all the numbers from 0 to 9, we can create a class to represent the separators "/" and "-" with `[/-]`. As regular expressions get longer, it makes sense to break each unit onto a different line and use Python's literal string expression to join them into a single string. As a bonus, we can comment on each unit of the regex.
@@ -353,21 +353,60 @@ date_re = re.compile('\d{4}'  # year
                      '[/-]'   # separator
                      '\d{2}') # day
 
-sep = '[/-]'
-date_re = re.compile('\d{4}' + # year
-                     sep     + # separator
-                     '\d{1,2}' + # month
-                     sep     + # separator
-                     '\d{1,2}')  # day
+dates = ['1999-01-02', '1999/01/02']
+for d in dates:
+    print('{}: {}'.format(d, date_re.match(d)))
+```
 
-dates = ['1999-01-01', '1999/01/01', '1999/1/1']
+    1999-01-02: <_sre.SRE_Match object; span=(0, 10), match='1999-01-02'>
+    1999/01/02: <_sre.SRE_Match object; span=(0, 10), match='1999/01/02'>
+
+
+You may notice that certain elements are repeated. If we followed DRY (Don't Repeat Yourself), we might want to make variables to hold each piece, but then we could not use the literal string joining trick above. In that case, just go back to using `+` to join strings:
+
+
+```python
+sep = '[/-]'
+four_digits = '\d{4}'
+two_digits = '\d{2}'
+
+date_re = re.compile(four_digits + # year
+                     sep         + # separator
+                     two_digits  + # month
+                     sep         + # separator
+                     two_digits)   # day
+
+dates = ['1999-01-02', '1999/01/02']
+for d in dates:
+    print('{}: {}'.format(d, date_re.match(d)))
+```
+
+    1999-01-02: <_sre.SRE_Match object; span=(0, 10), match='1999-01-02'>
+    1999/01/02: <_sre.SRE_Match object; span=(0, 10), match='1999/01/02'>
+
+
+Dates are not always written YYYY-MM-DD where the month/day are zero-padded left, e.g., "01" instead of "1". How could we handle that? Change our `two_digits` from `\d{2}` (exactly two) to `\d{1,2}` (one or two):
+
+
+```python
+sep = '[/-]'
+four_digits = '\d{4}'
+two_digits = '\d{1,2}'
+
+date_re = re.compile(four_digits + # year
+                     sep         + # separator
+                     two_digits  + # month
+                     sep         + # separator
+                     two_digits)   # day
+
+dates = ['1999-01-01', '1999/01/02', '1999/1/2']
 for d in dates:
     print('{}: {}'.format(d, date_re.match(d)))
 ```
 
     1999-01-01: <_sre.SRE_Match object; span=(0, 10), match='1999-01-01'>
-    1999/01/01: <_sre.SRE_Match object; span=(0, 10), match='1999/01/01'>
-    1999/1/1: <_sre.SRE_Match object; span=(0, 8), match='1999/1/1'>
+    1999/01/02: <_sre.SRE_Match object; span=(0, 10), match='1999/01/02'>
+    1999/1/2: <_sre.SRE_Match object; span=(0, 8), match='1999/1/2'>
 
 
 If we wanted to extract each part of the date (year, month, day), we can use parentheses `()` around the parts we want to capture into `groups`. The group "0" is the whole string that was match, and they are numbered sequentially after that for each group.
@@ -376,13 +415,13 @@ Can you change the regex to match all three strings?
 
 
 ```python
-date_re = re.compile('(\d{4})'  # capture year (group 1)
-                     '[/-]'     # separator
-                     '(\d{2})'  # capture month (group 2)
-                     '[/-]'     # separator
-                     '(\d{2})') # capture day (group 3)
+date_re = re.compile('(\d{4})'    # capture year (group 1)
+                     '[/-]'       # separator
+                     '(\d{1,2})'  # capture month (group 2)
+                     '[/-]'       # separator
+                     '(\d{1,2})') # capture day (group 3)
 
-dates = ['1999-01-01', '1999/01/01', '1999.01.01']
+dates = ['1999-01-02', '1999/1/2', '1999.01.01']
 for d in dates:
     match = date_re.match(d)
     print('{}: {}'.format(d, 'match' if match else 'miss'))
@@ -410,11 +449,11 @@ As we add more groups, it can be confusing to remember them by their positions, 
 ```python
 date_re = re.compile('(?P<year>\d{4})'
                      '[/-]'
-                     '(?P<month>\d{2})'
+                     '(?P<month>\d{1,2})'
                      '[/-]'
-                     '(?P<day>\d{2})')
+                     '(?P<day>\d{1,2})')
 
-dates = ['1999-01-01', '1999/01/01', '1999.01.01']
+dates = ['1999-1-2', '1999/01/02', '1999.01.01']
 
 for d in dates:
     match = date_re.match(d)
@@ -427,11 +466,11 @@ for d in dates:
     print()
 ```
 
-    1999-01-01: match
-    1999-01-01 = year "1999" month "01" day "01"
+    1999-1-2: match
+    1999-1-2 = year "1999" month "1" day "2"
     
-    1999/01/01: match
-    1999/01/01 = year "1999" month "01" day "01"
+    1999/01/02: match
+    1999/01/02 = year "1999" month "01" day "02"
     
     1999.01.01: miss
     
@@ -541,14 +580,14 @@ This has the affect of matching a dash after parens which is generally not a val
 
 
 ```python
-phone_re = re.compile('[(]?'
-                      '\d{3}'
-                      '[)]?'
-                      '[-]?'
-                      '\s*'
-                      '\d{3}'
-                      '-'
-                      '\d{4}')
+phone_re = re.compile('[(]?'   # optional left paren
+                      '\d{3}'  # three digits
+                      '[)]?'   # optional right paren
+                      '[-]?'   # optional dash
+                      '\s*'    # zero or more spaces
+                      '\d{3}'  # three digits
+                      '-'      # dash
+                      '\d{4}') # four digits
 
 phone_re.match('(800)-555-1212')
 ```
@@ -709,13 +748,16 @@ phone_re1 = re.compile('[(]'
                        '\s*(?P<prefix>\d{3})'
                        '[.-]'
                        '(?P<line_num>\d{4})')
+
 phone_re2 = re.compile('(?P<area_code>\d{3})'
                        '[.-]?'
                        '(?P<prefix>\d{3})'
                        '[.-]?'
                        '(?P<line_num>\d{4})')
+
 phones = ['8005551212', '(800)555-1212', '(800) 555-1212', 
           '800-555-1212', '(800)-555-1212', '800.555.1212']
+
 for phone in phones:
     match = phone_re1.match(phone) or phone_re2.match(phone)
     tmpl = '{area_code}-{prefix}-{line_num}'
