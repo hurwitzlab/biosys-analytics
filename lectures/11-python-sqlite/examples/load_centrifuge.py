@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Load Centrifuge into SQLite db"""
+"""
+Author:  Ken Youens-Clark <kyclark@email.arizona.edu
+Purpose: Load Centrifuge TSV files into SQLite db
+"""
 
 import argparse
 import csv
@@ -8,15 +11,25 @@ import re
 import sqlite3
 import sys
 
+
 # --------------------------------------------------
 def get_args():
     """get args"""
     parser = argparse.ArgumentParser(description='Load Centrifuge data')
-    parser.add_argument('tsv_file', metavar='file',
-                        help='Sample TSV file', nargs='+')
-    parser.add_argument('-d', '--dbname', help='Centrifuge db name',
-                        metavar='str', type=str, default='centrifuge.db')
+
+    parser.add_argument(
+        'tsv_file', metavar='file', help='Sample TSV file', nargs='+')
+
+    parser.add_argument(
+        '-d',
+        '--dbname',
+        help='Centrifuge db name',
+        metavar='str',
+        type=str,
+        default='centrifuge.db')
+
     return parser.parse_args()
+
 
 # --------------------------------------------------
 def main():
@@ -46,28 +59,30 @@ def main():
             sample_name = re.sub(r'\.centrifuge$', '', sample_name)
 
         sample_id = import_sample(sample_name, db)
-        print('{:3}: Importing "{}" ({})'.format(fnum + 1,
-                                                 sample_name, sample_id))
+        print('{:3}: Importing "{}" ({})'.format(fnum + 1, sample_name,
+                                                 sample_id))
         import_tsv(db, tsv_file, sample_id)
 
     print('Done')
+
 
 # --------------------------------------------------
 def import_sample(sample_name, db):
     """Import sample"""
     cur = db.cursor()
     cur.execute('select sample_id from sample where sample_name=?',
-                (sample_name,))
+                (sample_name, ))
     res = cur.fetchone()
 
     if res is None:
         cur.execute('insert into sample (sample_name) values (?)',
-                    (sample_name,))
+                    (sample_name, ))
         sample_id = cur.lastrowid
     else:
         sample_id = res[0]
 
     return sample_id
+
 
 # --------------------------------------------------
 def import_tsv(db, file, sample_id):
@@ -106,20 +121,20 @@ def import_tsv(db, file, sample_id):
                 num_uniq = row.get('numUniqueReads', 0)
 
                 if res is None:
-                    cur.execute(insert_sql,
-                                (sample_id, tax_id, num_reads, 
-                                 abundance, num_uniq))
+                    cur.execute(
+                        insert_sql,
+                        (sample_id, tax_id, num_reads, abundance, num_uniq))
                 else:
                     s2t_id = res[0]
-                    cur.execute(update_sql,
-                                (sample_id, tax_id, num_reads,
-                                 abundance, num_uniq, s2t_id))
+                    cur.execute(update_sql, (sample_id, tax_id, num_reads,
+                                             abundance, num_uniq, s2t_id))
             else:
                 print('No tax id!')
 
         db.commit()
 
     return 1
+
 
 # --------------------------------------------------
 def find_or_create_tax(db, rec):
@@ -133,7 +148,7 @@ def find_or_create_tax(db, rec):
     cur = db.cursor()
     ncbi_id = rec.get('taxID', '')
     if re.match('^\d+$', ncbi_id):
-        cur.execute(find_sql, (ncbi_id,))
+        cur.execute(find_sql, (ncbi_id, ))
         res = cur.fetchone()
 
         if res is None:
@@ -141,8 +156,7 @@ def find_or_create_tax(db, rec):
             if name:
                 print('Loading "{}" ({})'.format(name, ncbi_id))
                 cur.execute(insert_sql,
-                            (name, ncbi_id, rec['taxRank'],
-                             rec['genomeSize']))
+                            (name, ncbi_id, rec['taxRank'], rec['genomeSize']))
                 tax_id = cur.lastrowid
             else:
                 print('No "name" in {}'.format(rec))
@@ -154,6 +168,7 @@ def find_or_create_tax(db, rec):
     else:
         print('"{}" does not look like an NCBI tax id'.format(ncbi_id))
         return None
+
 
 # --------------------------------------------------
 if __name__ == '__main__':

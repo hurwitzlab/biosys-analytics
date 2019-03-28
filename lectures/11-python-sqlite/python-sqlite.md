@@ -76,8 +76,7 @@ We can add a dummy "sample" and link them like so:
 
 ```
 sqlite> insert into sample (sample_name) values ('foo');
-sqlite> insert into sample_to_tax (sample_id, tax_id, num_reads, abundance)
-   ...> values (1, 1, 100, .01);
+sqlite> insert into sample_to_tax (sample_id, tax_id, num_reads, abundance) values (1, 1, 100, .01);
 ```
 
 Verify that the data is there with a `select` statement (https://sqlite.org/lang_select.html):
@@ -118,13 +117,18 @@ sample_to_tax_id  sample_id   tax_id      num_reads   abundance   num_unique_rea
 1                 1           1           100         0.01        0
 ```
 
-Often what we want is to `join` the tables so we can see just the data we want, e.g.:
+Often what we want is to `join` the tables so we can see just the data we want, e.g., use this SQL:
 
 ```
-sqlite> select s.sample_name, t.tax_name, s2t.num_reads
-   ...> from sample s, tax t, sample_to_tax s2t
-   ...> where s.sample_id=s2t.sample_id
-   ...> and s2t.tax_id=t.tax_id;
+select s.sample_name, t.tax_name, s2t.num_reads
+from sample s, tax t, sample_to_tax s2t
+where s.sample_id=s2t.sample_id
+and s2t.tax_id=t.tax_id;
+````
+
+And you should see:
+   
+````
 sample_name  tax_name      num_reads
 -----------  ------------  ----------
 foo          Homo sapiens  100
@@ -141,6 +145,26 @@ Error: FOREIGN KEY constraint failed
 It would be bad to remove our sample and leave the sample/tax records in place.  This is what foreign keys do for us.  (Other databases -- PostgreSQL, MySQL, Oracle, etc. -- do this without having to explicitly turn on this feature, but keep in mind that this is an extremely lightweight, fast, and easy database to create and administer.  When you need more speed/power/safety, then you will move to another database.)
 
 Obviously we're not going to manually enter our data by hand, so let's write a script to import some data.  This script is going to be somewhat long, so let's break it down.  Here's the start.  We need to take as arguments the Centrifuge "\*.tsv" (tab-separated values) file which is the summary table for all the species found in a given sample.  The script will take one or more of these positional arguments.  It will also take as a named argument the `--db` name of the SQLite database.  Note that the `sqlite3` module is available by default with Python -- no need to install anything!
+
+First we're going to need to get our data, so do `make data` to download some TSV files from iMicrobe. Then you can load them:
+
+````
+$ ./load_centrifuge.py *.tsv
+  1: Importing "YELLOWSTONE_SMPL_20717" (2)
+Loading "Synechococcus sp. JA-3-3Ab" (321327)
+Loading "Synechococcus sp. JA-2-3B'a(2-13)" (321332)
+  2: Importing "YELLOWSTONE_SMPL_20719" (3)
+Loading "Streptococcus suis" (1307)
+Loading "synthetic construct" (32630)
+  3: Importing "YELLOWSTONE_SMPL_20721" (4)
+Loading "Staphylococcus sp. AntiMn-1" (1715860)
+  4: Importing "YELLOWSTONE_SMPL_20723" (5)
+  5: Importing "YELLOWSTONE_SMPL_20725" (6)
+  6: Importing "YELLOWSTONE_SMPL_20727" (7)
+Done
+````
+
+Here is the code that does that:
 
 ```
 #!/usr/bin/env python3
