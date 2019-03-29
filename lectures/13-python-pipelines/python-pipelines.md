@@ -4,14 +4,21 @@
 
 You might be surprised at how far you can push humble `make` to write analysis pipelines. I'd encourage you to really explore Makefiles, reading the docs and looking at other people's examples. You'll save yourself many hours if you learn to use `make` well, even if you are just documenting how you ran your Python program. Beyond `make`, there are many other frameworks for writing pipelines such as Nextflow, Snakemake, Taverna, Pegasus and many more (cf https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5429012/), many of which are probably far superior to rolling your own in Python; however, we will do just that as you will learn many valuable skills along the way. After all, hubris is one of the three virtues of a great programmer:
 
-> According to Larry Wall, the original author of the Perl programming language, there are three great virtues of a programmer:
-
-> **Laziness**: The quality that makes you go to great effort to reduce overall energy expenditure. It makes you write labor-saving programs that other people will find useful and document what you wrote so you don't have to answer so many questions about it.
-
-> **Impatience**: The anger you feel when the computer is being lazy. This makes you write programs that don't just react to your needs, but actually anticipate them. Or at least pretend to.
-
-> **Hubris**: The quality that makes you write (and maintain) programs that other people won't want to say bad things about.
-
+> According to Larry Wall, the original author of the Perl programming language, 
+> there are three great virtues of a programmer:
+> 
+> **Laziness**: The quality that makes you go to great effort to reduce overall 
+> energy expenditure. It makes you write labor-saving programs that other people 
+> will find useful and document what you wrote so you don't have to answer so many 
+> questions about it.
+> 
+> **Impatience**: The anger you feel when the computer is being lazy. This makes 
+> you write programs that don't just react to your needs, but actually anticipate 
+> them. Or at least pretend to.
+> 
+> **Hubris**: The quality that makes you write (and maintain) programs that other 
+> people won't want to say bad things about.
+> 
 > _Programming Perl_, 2nd Edition, O'Reilly & Associates, 1996
 
 A "pipeline" is chaining the output of one program or function as the input to the next as many times as necessary to arrive at an end product. Sometimes the whole pipeline can be written inside Python, but often in bioinformatics what we have is one program written in Java/C/C++ we install from source that creates some output that needs to be massaged by a program we write in bash or Python that gets fed to a Perl script you found on BioStars that produces some text file that we read into R to create some visualization. We're going to focus on how to use Python to take input, call external programs, check on the status, and feed the output to some other program. 
