@@ -1,5 +1,7 @@
 # Parsing with Python
 
+> Programming is the art of doing one thing at a time. -- Michael Feathers
+
 We'll use the term "parsing" to mean deriving meaning from structured text. In this chapter, we'll look at parsing command-line arguments and common file file formats in bioinformatics like CSV, FASTA/Q, and GFF.
 
 ## Command-line Arguments

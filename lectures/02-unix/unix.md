@@ -1,5 +1,7 @@
 # Bioinformatics
 
+> I feel like there should seriously be some sort of first-year level class where people learn how to add something to their path and what that means. -- Kristopher Micinski
+
 Want to be a Bioinformatician? It’s easy. Just learn everything you can about:
 
 * Genetics

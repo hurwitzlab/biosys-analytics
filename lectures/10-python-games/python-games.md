@@ -1,5 +1,7 @@
 # Writing Simple Games in Python
 
+> "Treat your code like poetry and take it to the edge of the bare minimum." - ILYO
+
 Games are a terrific way to learn. If you take something simple you know well, you have all the information you need to complete it. Something simple like tic-tac-toe -- you know you need a board, some way for the user to select a cell, you need to keep track of who's playing (X or O), when they've made a bad move, and when someone has won. Games often need random values, interact with the user, employ infinite loops -- in short, they are fascinating and fun to program and play.
 
 # Twelve Days of Christmas

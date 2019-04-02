@@ -1,5 +1,7 @@
 # Python Dictionaries
 
+> Sometimes I feel like my job is deeply meaningful and then I remember that at the end of the day most of what I do is asking students to read error messages from compilers. -- Kristopher Micinski
+
 Python has a data type called a "dictionary" that allows you to associate some "key" (often a string but it could be a number or even a tuple) to some "value" (which can be anything such as a string, number, tuple, list, set, or another dictionary).  The same data structure in other languages is also called a map, hash, and associative array.
 
 You can define the define a dictionary with all the key/value pairs using the `{}` braces:
