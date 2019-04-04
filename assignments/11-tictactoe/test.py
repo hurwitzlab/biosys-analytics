@@ -48,14 +48,18 @@ def test_outcome():
             ('O', '...OOO...'), ('X', '......XXX'), ('O', '......OOO'),
             ('X', 'X..X..X..'), ('O', 'O..O..O..'), ('X', '.X..X..X.'),
             ('O', '.O..O..O.'), ('X', '..X..X..X'), ('O', '..O..O..O'),
-            ('X', 'X...X...X'), ('O', 'O...O...O'), ('X', '..X.X.X..'),
-            ('O', '..O.O.O..')]
+            ('X', 'X...X...X'), ('O',
+                                 'O...O...O'), ('X',
+                                                '..X.X.X..'), ('O',
+                                                               '..O.O.O..')]
 
     for player, state in wins:
         l = len(state)
         dots = [i for i in range(l) if state[i] == '.']
         mut = sample(dots, k=2)
-        new_state = ''.join(['O' if i in mut else state[i] for i in range(l)])
+        other_player = 'O' if player == 'X' else 'X'
+        new_state = ''.join(
+            [other_player if i in mut else state[i] for i in range(l)])
         out = getoutput('{} {}'.format(outcome, new_state))
         assert out.strip() == '{} has won'.format(player)
 
