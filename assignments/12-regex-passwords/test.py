@@ -21,11 +21,11 @@ def test_usage():
     """usage"""
 
     rv1, out1 = getstatusoutput('{}'.format(prg))
-    assert rv1 == 1
+    assert rv1 > 0
     assert re.match("usage", out1, re.IGNORECASE)
 
     rv2, out2 = getstatusoutput('{} {}'.format(prg, random_string()))
-    assert rv2 == 1
+    assert rv2 > 0
     assert re.match("usage", out1, re.IGNORECASE)
 
 
