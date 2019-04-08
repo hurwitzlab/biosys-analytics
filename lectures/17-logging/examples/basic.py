@@ -6,6 +6,7 @@ import sys
 
 prg = sys.argv[0]
 prg_name, _ = os.path.splitext(os.path.basename(prg))
+
 logging.basicConfig(
     filename=prg_name + '.log',
     filemode='w',
