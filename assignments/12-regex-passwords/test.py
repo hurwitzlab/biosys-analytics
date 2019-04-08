@@ -15,6 +15,11 @@ def random_string():
 
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
 
+# --------------------------------------------------
+def random_character():
+    """generate a random character"""
+
+    return random.choice(string.ascii_letters + string.punctuation)
 
 # --------------------------------------------------
 def test_usage():
@@ -24,7 +29,7 @@ def test_usage():
     assert rv1 > 0
     assert re.match("usage", out1, re.IGNORECASE)
 
-    rv2, out2 = getstatusoutput('{} {}'.format(prg, random_string()))
+    rv2, out2 = getstatusoutput('{} "{}"'.format(prg, random_string()))
     assert rv2 > 0
     assert re.match("usage", out1, re.IGNORECASE)
 
@@ -40,7 +45,7 @@ def test_reject():
 # --------------------------------------------------
 def test_accept_01():
     p = random_string()
-    out = getoutput('{} {} {}'.format(prg, p, p))
+    out = getoutput('{} "{}" "{}"'.format(prg, p, p))
     assert out == 'ok'
 
 
@@ -48,37 +53,37 @@ def test_accept_01():
 def test_accept_02():
     p = random_string()
     u = p[0].upper() + p[1:]
-    out = getoutput('{} {} {}'.format(prg, p, u))
+    out = getoutput('{} "{}" "{}"'.format(prg, p, u))
     assert out == 'ok'
 
 
 # --------------------------------------------------
 def test_accept_03():
     p = random_string()
-    out = getoutput('{} {} {}'.format(prg, p, p.upper()))
+    out = getoutput('{} "{}" "{}"'.format(prg, p, p.upper()))
     assert out == 'ok'
 
 
 # --------------------------------------------------
 def test_accept_04():
     p = random_string()
-    c = random.choice(string.printable)
-    out = getoutput('{} {} {}'.format(prg, p, c + p))
+    c = random_character()
+    out = getoutput('{} "{}" "{}"'.format(prg, p, c + p))
     assert out == 'ok'
 
 
 # --------------------------------------------------
 def test_accept_05():
     p = random_string()
-    c = random.choice(string.printable)
-    out = getoutput('{} {} {}'.format(prg, p, p + c))
+    c = random_character()
+    out = getoutput('{} "{}" "{}"'.format(prg, p, p + c))
     assert out == 'ok'
 
 
 # --------------------------------------------------
 def test_accept_06():
     p = random_string()
-    c1 = random.choice(string.printable)
-    c2 = random.choice(string.printable)
-    out = getoutput('{} {} {}'.format(prg, p, c1 + p + c2))
+    c1 = random_character()
+    c2 = random_character()
+    out = getoutput('{} "{}" "{}"'.format(prg, p, c1 + p + c2))
     assert out == 'ok'
