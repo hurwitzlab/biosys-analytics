@@ -1,8 +1,8 @@
 # Logging in Python
 
-So far we've use `print` statements that go to STDOUT and the `warn` function that makes is slightly more convenient to `print` to STDERR. The trouble with this approach to writing and debugging code is that you need to remove all the `print` statements prior to releasing your code or running your tests. With the `logging` module (https://docs.python.org/3/library/logging.html), you can sprinkle messages to yourself liberally throughout your code and chose *at run time* which ones to see. 
+So far we've use `print` statements that go to STDOUT and the `warn` function that makes is slightly more convenient to write to STDERR. The trouble with this approach to writing and debugging code is that you need to remove all the `print`/`warn` statements prior to releasing your code or running your tests. With the `logging` module (https://docs.python.org/3/library/logging.html), you can sprinkle messages to yourself liberally throughout your code and chose *at run time* which ones to see. 
 
-Like with `random.seed`, calls to the `logging` module affect the **global state** of how logging happens. First you need to set up how the logging will happen using the `basicConfig` (https://docs.python.org/3/library/logging.html#logging.basicConfig). Typically you will set log message to go to a `filename` (if you don't indicate a filename then messages go to STDERR) with the `filemode` of "w" (write, which will overwrite existing files; default is "a" for append) at some `level` like "debug" (default is NOTSET so everything prints). Here is a script that does that:
+Like with `random.seed`, calls to the `logging` module affect the **global state** of how logging happens. First you need to set up how the logging will happen using the `basicConfig` (https://docs.python.org/3/library/logging.html#logging.basicConfig). Typically you will set log message to go to a `filename` (if you don't indicate a filename then messages go to STDERR) with the `filemode` of "w" (write, which will overwrite existing files; default is "a" for append) at some `level` like `logging.DEBUG` (default is `logging.NOTSET` so everything prints). Here is a script (in `examples`) that does that:
 
 ````
 $ cat -n basic.py
@@ -28,15 +28,14 @@ Before running the program, see that there is no log file:
 
 ````
 $ ls
-basic.py*
+basic.py* long.py*
 ````
 
 Run it, and see that `basic.log` has been created:
 
 ````
-$ ./basic.py
 $ ls
-basic.log  basic.py*
+basic.log  basic.py*  long.py*
 $ cat basic.log
 DEBUG:root:DEBUG!
 CRITICAL:root:CRITICAL!
@@ -76,7 +75,7 @@ $ cat basic.log
 CRITICAL:root:CRITICAL!
 ````
 
-If you find yourself repeatedly debugging some program or just need to know information about how it is proceeding. For instance, you have some functions or system calls that take a long time, and you sometimes want to monitor how they are going and other times don't (e.g., running unattended on the HPC). Here is a program that logs random levels and then sleeps for one second. To see how this could be useful, open two terminals and navigate to the `examples/long_running` directory. 
+If you find yourself repeatedly debugging some program or just need to know information about how it is proceeding, then `logging` is for you. Maybe you have some functions or system calls that take a long time; sometimes you want to monitor how they are going and other times (e.g., running unattended on the HPC) you don't. Here is a program that logs random levels and then sleeps for one second. To see how this could be useful, open two terminals and navigate to the `examples` directory. 
 
 Here is the program:
 
