@@ -278,3 +278,229 @@ Done.
 ````
 
 The `parallel` version looks out of order because the jobs are run as quickly as possible in whatever order that happens.
+
+# CD-HIT
+
+Let's take the `cd-hit` cluster exercise and extend it to where we take the proteins FASTA, run cd-hit, and find the unclustered proteins all in one go. First things first, we need to ensure `cd-hit` is on our system. It's highly unlikely that it is, so let's figure out how to install it.
+
+If you search on the Internet for `cd-hit`, you might end up at http://weizhongli-lab.org/cd-hit/ from which you go to the download page (http://weizhongli-lab.org/cd-hit/download.php) which directs you to the GitHub releases for the `cd-hit` repository (https://github.com/weizhongli/cdhit/releases). From there, we can download the source code tarball (`.tar.gz` file). For instance, I right-click on the link to copy the line address, then go to my HPC into my "downloads" directory and then use `wget` to retrieve the tarball. Next use `tar xvf` to "extract" in a "verbose" fashion the "file" (followed by the tarball). Finally you should have a directory like `cd-hit-v4.8.1-2019-0228` into which you should `cd`.
+
+If you look at the README, you'll see the way to compile this is to just type `make`. On my Mac laptop, I needed to compile without multi-threading support, so I used `make openmp=no`. That will run for a few seconds and look something like this:
+
+````
+$ make openmp=no
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-common.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-utility.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit.o cdhit-common.o cdhit-utility.o -lz -o cd-hit
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-est.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-est.o cdhit-common.o cdhit-utility.o -lz -o cd-hit-est
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-2d.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-2d.o cdhit-common.o cdhit-utility.o -lz -o cd-hit-2d
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-est-2d.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-est-2d.o cdhit-common.o cdhit-utility.o -lz -o cd-hit-est-2d
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-div.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-div.o cdhit-common.o cdhit-utility.o -lz -o cd-hit-div
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-454.c++ -c
+g++  -DNO_OPENMP -DWITH_ZLIB -O2  cdhit-454.o cdhit-common.o cdhit-utility.o -lz -o cd-hit-454
+````
+
+Often Makefiles will include an `install` target that will copy the new programs into a directory like `/usr/local/bin`. This one does not, so you'll have to manually copy the programs (e.g., `cd-hit`, `cd-hit-2d`, etc.) to whatever location you like. On an HPC (like Ocelote), you will not have permissions to copy to `/usr/local/bin`, so I'd recommend you create a directory like `$HOME/.local/bin` which you add to your `$PATH` and copy the binaries to that location.
+
+Ensure you have a `cd-hit` binary you can use:
+
+````
+$ which cd-hit
+/Users/kyclark/.local/bin/cd-hit
+$ cd-hit -h | head
+		====== CD-HIT version 4.8.1 (built on Apr  9 2019) ======
+
+Usage: cd-hit [Options]
+
+Options
+
+   -i	input filename in fasta format, required, can be in .gz format
+   -o	output filename, required
+   -c	sequence identity threshold, default 0.9
+ 	this is the default cd-hit's "global sequence identity" calculated as:
+````
+
+Now we can try out our new code:
+
+````
+$ cat -n cdhit_unclustered.py
+     1	#!/usr/bin/env python3
+     2	"""
+     3	Author : kyclark
+     4	Date   : 2019-02-20
+     5	Purpose: Run cd-hit, find unclustered proteins
+     6	"""
+     7
+     8	import argparse
+     9	import datetime
+    10	import logging
+    11	import os
+    12	import re
+    13	import signal
+    14	import sys
+    15	from subprocess import getstatusoutput
+    16	from shutil import which
+    17	from Bio import SeqIO
+    18
+    19
+    20	# --------------------------------------------------
+    21	def get_args():
+    22	    """get command-line arguments"""
+    23	    parser = argparse.ArgumentParser(
+    24	        description='Run cd-hit, find unclustered proteins',
+    25	        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    26
+    27	    parser.add_argument(
+    28	        '-p',
+    29	        '--proteins',
+    30	        help='Proteins FASTA',
+    31	        metavar='str',
+    32	        type=str,
+    33	        required=True)
+    34
+    35	    parser.add_argument(
+    36	        '-c',
+    37	        '--seq_id_threshold',
+    38	        help='cd-hit Sequence identity threshold',
+    39	        metavar='float',
+    40	        type=float,
+    41	        default=0.9)
+    42
+    43	    parser.add_argument(
+    44	        '-o',
+    45	        '--outfile',
+    46	        help='Output file',
+    47	        metavar='str',
+    48	        type=str,
+    49	        default='unclustered.fa')
+    50
+    51	    parser.add_argument(
+    52	        '-l',
+    53	        '--logfile',
+    54	        help='Log file',
+    55	        metavar='str',
+    56	        type=str,
+    57	        default='.log')
+    58
+    59	    parser.add_argument('-d', '--debug', help='Debug', action='store_true')
+    60
+    61	    return parser.parse_args()
+    62
+    63
+    64	# --------------------------------------------------
+    65	def die(msg='Something bad happened'):
+    66	    """log a critical message() and exit with error"""
+    67	    logging.critical(msg)
+    68	    sys.exit(1)
+    69
+    70
+    71	# --------------------------------------------------
+    72	def run_cdhit(proteins_file, seq_id_threshold):
+    73	    """Run cd-hit"""
+    74	    cdhit = which('cd-hit')
+    75
+    76	    if not cdhit:
+    77	        die('Cannot find "cd-hit"')
+    78
+    79	    out_file = os.path.basename(proteins_file) + '.cdhit'
+    80	    out_path = os.path.join(os.path.dirname(proteins_file), out_file)
+    81
+    82	    logging.debug('Found cd-hit "{}"'.format(cdhit))
+    83	    cmd = '{} -c {} -i {} -o {} -d 0'.format(cdhit, seq_id_threshold,
+    84	                                             proteins_file, out_file)
+    85	    logging.debug('Running "{}"'.format(cmd))
+    86	    rv, out = getstatusoutput(cmd)
+    87
+    88	    if rv != 0:
+    89	        die('Non-zero ({}) return from "{}"\n{}\n'.format(rv, cmd, out))
+    90
+    91	    if not os.path.isfile(out_file):
+    92	        die('Failed to create "{}"'.format(out_file))
+    93
+    94	    logging.debug('Finished cd-hit, found cluster file "{}"'.format(out_file))
+    95
+    96	    return out_file
+    97
+    98
+    99	# --------------------------------------------------
+   100	def get_unclustered(cluster_file, proteins_file, out_file):
+   101	    """Find the unclustered proteins in the cd-hit output"""
+   102
+   103	    if not os.path.isfile(cluster_file):
+   104	        die('cdhit "{}" is not a file'.format(cluster_file))
+   105
+   106	    logging.debug('Parsing "{}"'.format(cluster_file))
+   107
+   108	    clustered = set([rec.id for rec in SeqIO.parse(cluster_file, 'fasta')])
+   109
+   110	    # Alternate (longer) way:
+   111	    # clustered = set()
+   112	    # for rec in SeqIO.parse(cluster_file, 'fasta'):
+   113	    #     clustered.add(rec.id)
+   114
+   115	    logging.debug('Will write to "{}"'.format(out_file))
+   116	    out_fh = open(out_file, 'wt')
+   117	    num_total = 0
+   118	    num_unclustered = 0
+   119
+   120	    for rec in SeqIO.parse(proteins_file, 'fasta'):
+   121	        num_total += 1
+   122	        prot_id = re.sub(r'\|.*', '', rec.id)
+   123	        if not prot_id in clustered:
+   124	            num_unclustered += 1
+   125	            SeqIO.write(rec, out_fh, 'fasta')
+   126
+   127	    logging.debug(
+   128	        'Finished writing unclustered proteins'.format(num_unclustered))
+   129
+   130	    return (num_unclustered, num_total)
+   131
+   132
+   133	# --------------------------------------------------
+   134	def main():
+   135	    """Make a jazz noise here"""
+   136	    args = get_args()
+   137	    proteins_file = args.proteins
+   138	    out_file = args.outfile
+   139	    log_file = args.logfile
+   140
+   141	    if not os.path.isfile(proteins_file):
+   142	        die('--proteins "{}" is not a file'.format(arg_name, proteins_file))
+   143
+   144	    logging.basicConfig(
+   145	        filename=log_file,
+   146	        filemode='a',
+   147	        level=logging.DEBUG if args.debug else logging.CRITICAL)
+   148
+   149	    def sigint(sig, frame):
+   150	        logging.critical('INT: Exiting early!')
+   151	        sys.exit(0)
+   152
+   153	    signal.signal(signal.SIGINT, sigint)
+   154
+   155	    banner = '#' * 50
+   156	    logging.debug(banner)
+   157	    logging.debug('BEGAN {}'.format(str(datetime.datetime.today())))
+   158
+   159	    cluster_file = run_cdhit(proteins_file, args.seq_id_threshold)
+   160	    num_unclustered, num_total = get_unclustered(cluster_file, proteins_file,
+   161	                                                 out_file)
+   162
+   163	    msg = 'Wrote {:,d} of {:,d} unclustered proteins to "{}"'.format(
+   164	        num_unclustered, num_total, out_file)
+   165
+   166	    print(msg)
+   167	    logging.debug(msg)
+   168	    logging.debug('FINISHED {}'.format(str(datetime.datetime.today())))
+   169	    logging.debug(banner)
+   170
+   171
+   172	# --------------------------------------------------
+   173	if __name__ == '__main__':
+   174	    main()
+````

@@ -1,5 +1,7 @@
 # Common Patterns in Python
 
+> "To me programming is more than an important practical art. It is also a gigantic undertaking in the foundations of knowledge." - Grace Hopper
+
 ## Get positional command-line arguments
 
 You can get the command-line arguments using `sys.argv` (argument vector), but it's annoying that the name of the Python program itself is in the first position (`sys.argv[0]`). To skip over this, take a slice of the argument vector starting at the second position (index `1`) which will succeed even if there are no arguments -- you'll get an empty list, which is safe.
