@@ -2,7 +2,7 @@
 
 > Much of the essence of building a program is in fact the debugging of the specification. -- Fred Brooks
 
-Let's start with a simple example of a `hello` program that should say "Hello, <name>!" 
+Let's start with a simple example of a `hello` program that should say "Hello, name!" 
 	
 ````
 $ ./hello.py
@@ -125,7 +125,7 @@ hello_bad.py:10: AssertionError
 
 The error output highlights the differences between what was expected (`Hello, World.` ending in a period) and what the `hello` function actually returned (`Hello, World!` ending in an exclamation point). 
 
-I would recommend writing your tests for every function directly below the function being tested and calling the test `test_<function>`. Try to make a function do just one thing, then write tests to ensure it does that thing. Try to write tests that probe the edge cases, e.g., passing an empty string or a very long string. Here's a version where the `hello` function will only greet if the argument is a `str`; otherwise it will return an admonishment. This is an extremely contrived example because everything coming in via `sys.argv` is by definition a string, so I will intentionally convert anything that looks like a digit to an `int` so that we can see the error:
+I would recommend writing your tests for every function directly below the function being tested and calling the test `test_function`. Try to make a function do just one thing, then write tests to ensure it does that thing. Try to write tests that probe the edge cases, e.g., passing an empty string or a very long string. Here's a version where the `hello` function will only greet if the argument is a `str`; otherwise it will return an admonishment. This is an extremely contrived example because everything coming in via `sys.argv` is by definition a string, so I will intentionally convert anything that looks like a digit to an `int` so that we can see the error:
 	
 ````
 $ cat -n hello_fail.py
