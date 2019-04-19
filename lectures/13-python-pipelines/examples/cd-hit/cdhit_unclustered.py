@@ -80,18 +80,18 @@ def run_cdhit(proteins_file, seq_id_threshold):
     out_path = os.path.join(os.path.dirname(proteins_file), out_file)
 
     logging.debug('Found cd-hit "{}"'.format(cdhit))
-    cmd = '{} -c {} -i {} -o {} -d 0'.format(cdhit, seq_id_threshold,
-                                             proteins_file, out_file)
+    cmd = '{} -c {} -i {} -o {}'.format(cdhit, seq_id_threshold,
+                                        proteins_file, out_path)
     logging.debug('Running "{}"'.format(cmd))
     rv, out = getstatusoutput(cmd)
 
     if rv != 0:
         die('Non-zero ({}) return from "{}"\n{}\n'.format(rv, cmd, out))
 
-    if not os.path.isfile(out_file):
-        die('Failed to create "{}"'.format(out_file))
+    if not os.path.isfile(out_path):
+        die('Failed to create "{}"'.format(out_path))
 
-    logging.debug('Finished cd-hit, found cluster file "{}"'.format(out_file))
+    logging.debug('Finished cd-hit, found cluster file "{}"'.format(out_path))
 
     return out_file
 
