@@ -6,6 +6,7 @@ Purpose: Check the first/few records of a delimited text file
 
 import argparse
 import csv
+import io
 import os
 import re
 import sys
@@ -20,6 +21,7 @@ def get_args():
 
     parser.add_argument('file',
                         metavar='FILE',
+                        type=argparse.FileType('r'),
                         help='Input file ("-" for STDIN)')
 
     parser.add_argument('-s',
@@ -65,13 +67,14 @@ def get_args():
 def main():
     """main"""
     args = get_args()
-    file = args.file
     limit = args.limit
     sep = args.sep
     dense = args.dense
     show_numbers = args.number
     no_headers = args.no_headers
-    fh = sys.stdin if file == '-' else open(file)
+    #file = args.file
+    #fh = sys.stdin if file == '-' else open(file)
+    fh = args.file
 
     if not sep:
         _, ext = os.path.splitext(fh.name)
@@ -85,13 +88,18 @@ def main():
             dict_args['fieldnames'] = names
 
     if args.no_headers:
-        num_flds = len(fh.readline().split(sep))
+        first_line = fh.readline()
+        num_flds = len(first_line.split(sep))
         dict_args['fieldnames'] = list(
             map(lambda i: 'Field' + str(i), range(1, num_flds + 1)))
-        fh.seek(0)
+
+        # can't `seek` on STDIN, so fake it
+        if fh.name == '<stdin>':
+            fh = io.StringIO(first_line + fh.read())
+        else:
+            fh.seek(0)
 
     reader = csv.DictReader(fh, **dict_args)
-
     for i, row in enumerate(reader, start=1):
         vals = dict([x for x in row.items()
                      if x[1] != '']) if dense else row
